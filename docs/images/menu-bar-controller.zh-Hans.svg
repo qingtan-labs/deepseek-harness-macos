@@ -33,23 +33,21 @@
   <circle cx="638" cy="96" r="6" fill="#111827"/><circle cx="660" cy="96" r="6" fill="#111827" opacity=".35"/>
   <g transform="translate(1028 79) scale(.58)" fill="#111827"><use href="#official-whale"/></g>
   <g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
-    <text x="638" y="154" fill="#111827" font-size="18" font-weight="650">DeepSeek Harness 1.0.0</text>
-    <text x="1084" y="154" text-anchor="end" fill="#17a36b" font-size="15">运行中</text>
+    <text x="638" y="154" fill="#17a36b" font-size="16" font-weight="650">服务正在运行（外部启动）</text>
     <line x1="630" x2="1100" y1="174" y2="174" stroke="#d9dee7"/>
-    <text x="638" y="210" fill="#111827" font-size="17">打开 DeepSeek Harness</text><text x="1085" y="210" text-anchor="end" fill="#7b8495" font-size="15">⌘O</text>
-    <text x="638" y="250" fill="#111827" font-size="17">本次使用应用内窗口</text>
+    <text x="638" y="210" fill="#111827" font-size="17">打开 / 聚焦 DeepSeek Harness</text><text x="1085" y="210" text-anchor="end" fill="#7b8495" font-size="15">⌘O</text>
+    <text x="638" y="250" fill="#111827" font-size="17">本次改用应用内窗口</text>
     <line x1="630" x2="1100" y1="270" y2="270" stroke="#d9dee7"/>
-    <text x="638" y="307" fill="#111827" font-size="17">默认打开方式</text><text x="1085" y="307" text-anchor="end" fill="#667085" font-size="16">浏览器  ›</text>
-    <text x="638" y="347" fill="#111827" font-size="17">服务</text><text x="1085" y="347" text-anchor="end" fill="#667085" font-size="16">健康  ›</text>
+    <text x="638" y="307" fill="#111827" font-size="17">打开方式：默认浏览器</text><text x="1085" y="307" text-anchor="end" fill="#667085" font-size="16">›</text>
+    <text x="638" y="347" fill="#111827" font-size="17">服务</text><text x="1085" y="347" text-anchor="end" fill="#667085" font-size="16">›</text>
     <line x1="630" x2="1100" y1="368" y2="368" stroke="#d9dee7"/>
     <text x="638" y="405" fill="#111827" font-size="17">✓  登录时静默启动</text>
-    <text x="638" y="445" fill="#111827" font-size="17">复制本地地址</text>
-    <text x="638" y="485" fill="#111827" font-size="17">复制诊断信息</text>
-    <line x1="630" x2="1100" y1="506" y2="506" stroke="#d9dee7"/>
-    <text x="638" y="543" fill="#111827" font-size="17">关于 DeepSeek Harness</text>
-    <text x="638" y="583" fill="#111827" font-size="17">退出 DeepSeek Harness</text><text x="1085" y="583" text-anchor="end" fill="#7b8495" font-size="15">⌘Q</text>
-    <rect x="636" y="615" width="458" height="46" rx="11" fill="#eef8f3"/>
-    <text x="654" y="644" fill="#187a52" font-size="15">关闭应用内窗口不会退出小鲸鱼。</text>
+    <text x="638" y="445" fill="#111827" font-size="17">使用说明…</text>
+    <line x1="630" x2="1100" y1="466" y2="466" stroke="#d9dee7"/>
+    <text x="638" y="503" fill="#111827" font-size="17">关于 DeepSeek Harness 1.0.0</text>
+    <text x="638" y="543" fill="#111827" font-size="16">退出控制器（服务继续运行）</text><text x="1085" y="543" text-anchor="end" fill="#7b8495" font-size="15">⌘Q</text>
+    <rect x="636" y="575" width="458" height="46" rx="11" fill="#eef8f3"/>
+    <text x="654" y="604" fill="#187a52" font-size="15">退出控制器后，外部启动的服务继续运行。</text>
   </g>
   <text x="84" y="715" fill="#7b8495" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14">界面预览 · 仅使用演示内容 · 无用户数据</text>
 </svg>

@@ -10,6 +10,8 @@ The image above is a real, privacy-safe capture of a blank Harness session. It c
 
 ![Menu bar controller](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.svg)
 
+The controller menu surfaces external-service status, Open/Focus, a one-time alternate window, the saved opening method, service controls, silent login startup, the user guide, version information, and a controller-only quit that leaves an externally started service running.
+
 ![Existing browser tab reuse](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/browser-reuse.svg)
 
 ![In-app window](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/in-app-window.svg)

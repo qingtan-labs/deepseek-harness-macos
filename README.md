@@ -53,7 +53,7 @@ This is a real, privacy-safe capture of a blank Harness session. It contains no 
 
 ![DeepSeek Harness shared Dock and menu bar controller](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.svg)
 
-The Dock icon and menu bar whale control the same application. Service health, opening preference, login startup, diagnostics, and quit behavior stay in one menu.
+The Dock icon and menu bar whale control the same application. The menu includes external-service status, Open/Focus, a one-time alternate window, the saved opening method, service controls, silent login startup, the user guide, version information, and an explicit controller-only quit that leaves an externally started service running.
 
 ### Focus the existing browser tab (workflow preview)
 
