@@ -1,0 +1,1 @@
+"NSAppleEventsUsageDescription" = "DeepSeek Harness checks your default browser only when you ask it to open Harness, so it can focus an existing local tab instead of creating a duplicate.";

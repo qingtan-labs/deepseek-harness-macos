@@ -1,0 +1,80 @@
+name: Bug report
+description: Report a reproducible problem with the macOS app or installer.
+title: "[Bug]: "
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Do not include credentials, API keys, login codes, or private data.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing Issues and did not find the same problem.
+          required: true
+        - label: I am using the latest public release.
+          required: true
+        - label: I removed credentials and private information from diagnostics and logs.
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac architecture
+      placeholder: macOS 15.6, Apple silicon
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Saved opening method
+      options:
+        - Browser
+        - In-app window
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      description: Required for browser-reuse problems; otherwise enter Not applicable.
+      placeholder: Safari 18 / Chrome 140 / Not applicable
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Sanitized diagnostics or relevant logs
+      render: text
+

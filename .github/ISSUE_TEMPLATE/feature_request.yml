@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest a focused improvement for the macOS companion.
+title: "[Feature]: "
+labels: [enhancement, needs-triage]
+body:
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing Issues and did not find this request.
+          required: true
+        - label: This request is for the macOS companion rather than DSH itself.
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Explain the user problem before proposing the interface.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+

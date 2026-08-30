@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  macos-release-smoke-test:
+    runs-on: macos-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Check repository metadata
+        run: ./scripts/check-repository.command
+
+      - name: Build and validate universal release
+        run: ./scripts/build-release.command
+
+      - name: Verify checksum
+        working-directory: dist
+        run: shasum -a 256 -c DeepSeek-Harness-1.0.0-macOS.zip.sha256
+
+      - name: Upload smoke-test artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: DeepSeek-Harness-1.0.0-macOS
+          path: |
+            dist/DeepSeek-Harness-1.0.0-macOS.zip
+            dist/DeepSeek-Harness-1.0.0-macOS.zip.sha256
+          if-no-files-found: error
+          retention-days: 7
