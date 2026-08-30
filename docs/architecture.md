@@ -18,7 +18,7 @@ DeepSeek Harness for macOS is a small Objective-C/AppKit application built direc
 
 1. A Dock or menu action reads the saved browser/in-app preference.
 2. The controller checks listener identity and HTTP health at `127.0.0.1:3080`.
-3. A stopped owned service is started and given a bounded health-check window.
+3. A stopped owned service is started with `--no-open` and given a bounded health-check window, so only the controller presents the selected browser or in-app surface.
 4. Browser mode probes supported open browsers and focuses an exact local tab when found; otherwise it opens the URL.
 5. In-app mode creates or restores a single WebKit window.
 
@@ -29,4 +29,3 @@ The app records the PID and bundle identifier for a service it started. The reco
 ## Compatibility decisions
 
 The existing `com.yestar.deepseek-harness` bundle identifier is retained for upgrade compatibility with pre-public builds and their saved defaults. Changing it requires an explicit preference and Login Items migration plan.
-

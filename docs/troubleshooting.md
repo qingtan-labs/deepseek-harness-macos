@@ -13,6 +13,12 @@ Version 1.0.0 is not Apple-notarized. Control-click `install.command`, choose **
 
 Private/incognito windows, browser policies, different ports, and denied automation access can prevent tab detection.
 
+## Harness says “Failed to load plugins”
+
+This can happen when a plugin was updated or removed while an older DSH web process is still running with the previous loader list in memory. Restart the service from the whale menu, then reload Harness. A clean restart rebuilds the loader list without deleting sessions, settings, credentials, or other plugins.
+
+If the same plugin is still reported after a restart, copy sanitized diagnostics from the Service menu and verify that the named package still exists in the active DSH web profile. Do not delete the complete `~/.dsh` directory as a first troubleshooting step.
+
 ## The whale disappears after closing the window
 
 Use the current release and close the in-app window with its red close button. Do not choose **Quit DeepSeek Harness** from the menu or press Command-Q. Closing the window should leave the status item running.
@@ -35,4 +41,3 @@ lsof -nP -iTCP:3080 -sTCP:LISTEN
 - Include sanitized diagnostics and relevant log lines in a Bug report.
 
 Do not post credentials, cookies, login codes, or complete private paths.
-

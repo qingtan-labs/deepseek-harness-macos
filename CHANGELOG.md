@@ -2,6 +2,12 @@
 
 All notable changes are documented here. This project follows [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- Managed DSH services now start with `--no-open`, leaving all browser and in-app presentation decisions to the shared controller and preventing an extra browser tab during service startup.
+
 ## [1.0.0] - 2026-08-30
 
 ### Added
@@ -22,4 +28,3 @@ All notable changes are documented here. This project follows [Semantic Versioni
 - The 1.0.0 binary is ad-hoc signed and not Apple-notarized. See the README for the safe first-open flow.
 
 [1.0.0]: https://github.com/qingtan-labs/deepseek-harness-macos/releases/tag/v1.0.0
-

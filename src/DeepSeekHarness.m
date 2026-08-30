@@ -523,7 +523,9 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     [self applyServiceState];
     self.serviceTask = [[NSTask alloc] init];
     self.serviceTask.launchPath = dshPath;
-    self.serviceTask.arguments = @[ @"web" ];
+    // Presentation is owned by this controller. Prevent DSH from opening a
+    // second browser tab before the saved browser/in-app preference is applied.
+    self.serviceTask.arguments = @[ @"web", @"--no-open" ];
     NSMutableDictionary *environment = NSProcessInfo.processInfo.environment.mutableCopy;
     NSString *existingPath = environment[@"PATH"] ?: @"/usr/bin:/bin:/usr/sbin:/sbin";
     environment[@"PATH"] = [NSString stringWithFormat:@"%@:%@", [self privateRuntimeBinPath], existingPath];
