@@ -43,11 +43,7 @@ The project is free and open source. It will never ask you to send an API key, p
 
 ## Product tour
 
-### Actual Harness workspace
-
-![DeepSeek Harness live workspace in English](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/harness-live.en.jpg)
-
-This is a real, privacy-safe capture of a blank Harness session. It contains no API key, conversation history, or user content. The remaining images are interaction previews made with demonstration content.
+The previews below use demonstration content only and focus on the macOS controller's own interactions.
 
 ### Dock and menu bar, together (interaction preview)
 

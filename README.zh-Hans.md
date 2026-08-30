@@ -39,12 +39,6 @@ DeepSeek Harness macOS 版是社区开发的辅助应用，把 Dock 启动入口
 
 ## 使用效果
 
-### 实际运行界面
-
-![DeepSeek Harness 中文实际运行界面](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/harness-live.zh-Hans.jpg)
-
-这是从真实 Harness 空白会话截取的中文界面，不含 API Key、历史会话或用户内容。下方图片用于说明控制器交互，全部采用中文演示内容。
-
 ### 菜单栏控制（实际截图）
 
 <p align="center">
