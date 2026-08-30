@@ -59,9 +59,9 @@ When the selected browser permits inspection, clicking the Dock icon focuses the
 
 ### Optional in-app window (workflow preview)
 
-![DeepSeek Harness native in-app window](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/in-app-window.svg)
+![DeepSeek Harness native in-app window](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/in-app-window.svg?v=2)
 
-The native WebKit window keeps one local session. Closing the window does not quit the menu bar whale or stop Harness.
+The native WebKit window keeps one local session. Closing the window does not quit the menu bar whale or stop Harness. The preview shows only the controller-owned window shell and WebView container; it does not invent DSH product controls.
 
 ## Why use it?
 

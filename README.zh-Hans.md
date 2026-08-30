@@ -53,9 +53,9 @@ Dock 图标和菜单栏小鲸鱼控制同一个应用；所有入口都集中在
 
 ### 可选的应用内窗口（流程预览）
 
-![DeepSeek Harness 原生应用内窗口中文预览](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/in-app-window.zh-Hans.svg)
+![DeepSeek Harness 原生应用内窗口中文预览](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/in-app-window.zh-Hans.svg?v=2)
 
-原生 WebKit 窗口只保留一个本地会话。关闭窗口不会退出菜单栏小鲸鱼，也不会停止 Harness 服务。
+原生 WebKit 窗口只保留一个本地会话。关闭窗口不会退出菜单栏小鲸鱼，也不会停止 Harness 服务。图中只展示控制器拥有的窗口外壳与 WebView 容器，不虚构 DSH 产品功能界面。
 
 ## 为什么使用它
 

@@ -12,7 +12,7 @@ The controller menu surfaces external-service status, Open/Focus, a one-time alt
 
 ![Existing browser tab reuse](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/browser-reuse.svg?v=3)
 
-![In-app window](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/in-app-window.svg)
+![In-app window](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/in-app-window.svg?v=2)
 
 The native application automatically uses English or Simplified Chinese according to macOS language settings.
 

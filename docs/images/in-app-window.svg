@@ -1,41 +1,50 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
-  <title id="title">DeepSeek Harness in-app window preview</title>
-  <desc id="desc">A privacy-safe interface preview showing the native in-app window, local connection state, and close versus quit behavior.</desc>
+  <title id="title">DeepSeek Harness native in-app window preview</title>
+  <desc id="desc">A faithful preview of the native macOS window shell, 38-pixel connection bar, local WebView container, and close-versus-quit behavior.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f5f2ff"/><stop offset="1" stop-color="#eef6f5"/></linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#172033" flood-opacity=".2"/></filter>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="170%"><feDropShadow dx="0" dy="16" stdDeviation="22" flood-color="#172033" flood-opacity=".2"/></filter>
+    <path id="official-whale" d="M48.8354 10.0479C48.3232 9.79199 48.1025 10.2798 47.8032 10.5278C47.7007 10.6079 47.6143 10.7119 47.5273 10.8076C46.7793 11.624 45.9048 12.1597 44.7622 12.0957C43.0923 12 41.666 12.5356 40.4058 13.8398C40.1377 12.2319 39.2476 11.272 37.8926 10.6558C37.1836 10.3359 36.4668 10.0156 35.9702 9.31982C35.6235 8.82373 35.5293 8.27197 35.356 7.72754C35.2456 7.3999 35.1353 7.06396 34.7651 7.00781C34.3633 6.94385 34.2056 7.2876 34.0479 7.57568C33.418 8.75195 33.1733 10.0479 33.1973 11.3599C33.2524 14.312 34.4736 16.6641 36.8999 18.3359C37.1758 18.5278 37.2466 18.7197 37.1597 19C36.9946 19.5757 36.7974 20.1357 36.624 20.7119C36.5137 21.0801 36.3486 21.1597 35.9624 21C34.6309 20.4321 33.481 19.5918 32.4644 18.5757C30.7393 16.8721 29.1792 14.9917 27.2334 13.52C26.7764 13.1758 26.3193 12.856 25.8467 12.5518C23.8618 10.584 26.1069 8.96777 26.627 8.77588C27.1704 8.57568 26.8159 7.8877 25.0591 7.896C23.3022 7.90381 21.6953 8.50391 19.647 9.30371C19.3477 9.42383 19.0322 9.51172 18.7095 9.58398C16.8501 9.22363 14.9199 9.14355 12.9033 9.37598C9.10596 9.80762 6.07275 11.6396 3.84326 14.7681C1.16455 18.5278 0.53418 22.7998 1.30664 27.2559C2.11768 31.9521 4.46582 35.8398 8.07373 38.8799C11.8159 42.0322 16.1255 43.5762 21.041 43.2803C24.0269 43.104 27.3516 42.6963 31.1016 39.4561C32.0469 39.936 33.0396 40.1279 34.686 40.272C35.9546 40.3921 37.1758 40.208 38.1211 40.0078C39.6021 39.688 39.4995 38.2881 38.9639 38.0322C34.623 35.9678 35.5762 36.8081 34.71 36.1279C36.9155 33.4639 40.2402 30.6958 41.54 21.728C41.6426 21.0161 41.5557 20.5679 41.54 19.9917C41.5322 19.6396 41.6108 19.5039 42.0049 19.4639C43.0923 19.3359 44.1479 19.0317 45.1167 18.4878C47.9292 16.9199 49.064 14.3438 49.3315 11.2559C49.3711 10.7837 49.3237 10.2959 48.8354 10.0479ZM24.3262 37.8398C20.1196 34.4639 18.0791 33.3521 17.2358 33.3999C16.4482 33.4482 16.5898 34.3682 16.7632 34.9678C16.9443 35.5601 17.1812 35.9683 17.5117 36.4878C17.7402 36.832 17.8979 37.3442 17.2832 37.728C15.9282 38.584 13.5728 37.4399 13.4624 37.3838C10.7207 35.7358 8.42822 33.5601 6.81348 30.584C5.25342 27.7197 4.34766 24.6479 4.19775 21.3677C4.1582 20.5757 4.38672 20.2959 5.15869 20.1519C6.17529 19.96 7.22314 19.9199 8.23926 20.0718C12.5327 20.7119 16.1885 22.6719 19.2529 25.7759C21.002 27.5439 22.3252 29.6558 23.6885 31.7202C25.1377 33.9121 26.6978 36 28.6831 37.7119C29.3843 38.312 29.9434 38.7681 30.479 39.104C28.8643 39.2881 26.1699 39.3281 24.3262 37.8398ZM26.3433 24.6001C26.3433 24.248 26.6191 23.9678 26.9658 23.9678C27.0444 23.9678 27.1152 23.9839 27.1782 24.0078C27.2651 24.04 27.3438 24.0879 27.4067 24.1602C27.5171 24.272 27.5801 24.4321 27.5801 24.6001C27.5801 24.9521 27.3042 25.2319 26.9575 25.2319C26.6108 25.2319 26.3433 24.9521 26.3433 24.6001ZM32.6064 27.8799C32.2046 28.0479 31.8027 28.1919 31.4165 28.208C30.8179 28.2397 30.1641 27.9922 29.8096 27.688C29.2583 27.2158 28.8643 26.9521 28.6987 26.1279C28.6279 25.7759 28.6675 25.2319 28.7305 24.9199C28.8721 24.248 28.7144 23.8159 28.2495 23.4238C27.8716 23.104 27.3911 23.0161 26.8633 23.0161C26.666 23.0161 26.4849 22.9277 26.3511 22.856C26.1304 22.7441 25.9492 22.4639 26.1226 22.1201C26.1777 22.0078 26.4458 21.7358 26.5088 21.688C27.2256 21.272 28.0527 21.4077 28.8169 21.7197C29.5259 22.0161 30.0615 22.5601 30.834 23.3281C31.6216 24.2559 31.7632 24.5117 32.2124 25.208C32.5669 25.752 32.8901 26.312 33.1104 26.9521C33.2446 27.3521 33.0713 27.6802 32.6064 27.8799Z"/>
   </defs>
   <rect width="1200" height="760" rx="28" fill="url(#bg)"/>
-  <text x="80" y="88" fill="#111827" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700">A focused in-app workspace.</text>
-  <text x="80" y="130" fill="#667085" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="20">Close the window without quitting the menu bar controller or stopping Harness.</text>
-  <g filter="url(#shadow)">
-    <rect x="80" y="178" width="1040" height="500" rx="22" fill="#fff" stroke="#cdd6e5"/>
-  </g>
-  <path d="M80 200a22 22 0 0 1 22-22h996a22 22 0 0 1 22 22v46H80z" fill="#f0f2f6"/>
-  <circle cx="110" cy="212" r="7" fill="#ff605c"/><circle cx="134" cy="212" r="7" fill="#ffbd44"/><circle cx="158" cy="212" r="7" fill="#00ca4e"/>
-  <text x="600" y="218" text-anchor="middle" fill="#263142" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="16" font-weight="650">DeepSeek Harness</text>
-  <rect x="80" y="246" width="1040" height="52" fill="#f9fafb"/>
-  <circle cx="110" cy="272" r="7" fill="#20a66a"/><text x="129" y="278" fill="#344054" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="15">Connected · 127.0.0.1:3080</text>
-  <rect x="984" y="256" width="112" height="32" rx="9" fill="#fff" stroke="#d5dce7"/><text x="1040" y="277" text-anchor="middle" fill="#344054" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14">Reload</text>
-  <rect x="80" y="298" width="205" height="380" fill="#101827"/>
-  <text x="108" y="342" fill="#fff" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="18" font-weight="650">Harness</text>
-  <rect x="102" y="368" width="160" height="42" rx="10" fill="#293244"/><text x="122" y="394" fill="#fff" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="15">New session</text>
-  <text x="122" y="450" fill="#aeb8c8" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="15">Recent</text>
-  <rect x="108" y="474" width="140" height="11" rx="6" fill="#3b4558"/><rect x="108" y="498" width="112" height="11" rx="6" fill="#3b4558"/>
-  <g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
-    <text x="335" y="360" fill="#111827" font-size="28" font-weight="700">Welcome to DeepSeek Harness</text>
-    <text x="335" y="394" fill="#667085" font-size="17">Start locally, stay in one window, and return from the whale.</text>
-    <rect x="335" y="434" width="706" height="104" rx="16" fill="#f7f9fc" stroke="#e0e6ef"/>
-    <circle cx="374" cy="472" r="16" fill="#635bff" opacity=".15"/><circle cx="374" cy="472" r="7" fill="#635bff"/>
-    <text x="407" y="467" fill="#111827" font-size="18" font-weight="650">Local session ready</text>
-    <text x="407" y="496" fill="#667085" font-size="15">Your actual Harness content stays in the local web session.</text>
-    <rect x="335" y="562" width="336" height="72" rx="14" fill="#eef8f3"/>
-    <text x="359" y="590" fill="#187a52" font-size="15" font-weight="650">Close window</text>
-    <text x="359" y="614" fill="#4a6f60" font-size="14">Whale and service stay available</text>
-    <rect x="692" y="562" width="349" height="72" rx="14" fill="#fff5eb"/>
-    <text x="716" y="590" fill="#a65b17" font-size="15" font-weight="650">Quit from menu</text>
-    <text x="716" y="614" fill="#7e654e" font-size="14">Explicitly exits the controller</text>
-  </g>
-  <text x="80" y="720" fill="#7b8495" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14">Interface preview · Demonstration content only · No user data</text>
-</svg>
+  <text x="80" y="84" fill="#111827" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700">In-app window, without the browser.</text>
+  <text x="80" y="126" fill="#667085" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="20">One native window reuses the local Harness page and stays separate from browser tabs.</text>
 
+  <g filter="url(#shadow)"><rect x="80" y="166" width="1040" height="430" rx="22" fill="#fff" stroke="#cdd6e5"/></g>
+  <path d="M80 188a22 22 0 0 1 22-22h996a22 22 0 0 1 22 22v30H80z" fill="#eef0f4"/>
+  <circle cx="110" cy="192" r="7" fill="#ff605c"/><circle cx="134" cy="192" r="7" fill="#ffbd44"/><circle cx="158" cy="192" r="7" fill="#00ca4e"/>
+  <g transform="translate(518 179) scale(.44)" fill="#111827"><use href="#official-whale"/></g>
+  <text x="548" y="198" fill="#263142" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="16" font-weight="650">DeepSeek Harness</text>
+
+  <rect x="80" y="218" width="1040" height="38" fill="#f9fafb"/>
+  <line x1="80" x2="1120" y1="218" y2="218" stroke="#d8dee8"/><line x1="80" x2="1120" y1="256" y2="256" stroke="#e1e6ee"/>
+  <circle cx="104" cy="237" r="6" fill="#20a66a"/>
+  <text x="120" y="242" fill="#344054" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14">In-app window · Connected to 127.0.0.1:3080</text>
+  <rect x="1002" y="223" width="96" height="28" rx="8" fill="#fff" stroke="#d5dce7"/>
+  <path d="M1020 232a6 6 0 1 0 1 7M1020 232v5h-5" fill="none" stroke="#667085" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="1060" y="242" text-anchor="middle" fill="#344054" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="13">Reload</text>
+
+  <rect x="222" y="286" width="756" height="246" rx="20" fill="#fafbfe" stroke="#dfe5ee"/>
+  <g transform="translate(580 310) scale(.8)" fill="#111827"><use href="#official-whale"/></g>
+  <text x="600" y="390" text-anchor="middle" fill="#111827" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="27" font-weight="700">Your local Harness page appears here</text>
+  <text x="600" y="422" text-anchor="middle" fill="#667085" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="16">No browser tab or address bar is created.</text>
+  <g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" font-weight="650">
+    <rect x="330" y="452" width="160" height="40" rx="20" fill="#f0edff"/><text x="410" y="477" text-anchor="middle" fill="#5948b8">One window</text>
+    <rect x="520" y="452" width="160" height="40" rx="20" fill="#edf7f3"/><text x="600" y="477" text-anchor="middle" fill="#187a52">Local page</text>
+    <rect x="710" y="452" width="160" height="40" rx="20" fill="#eef4ff"/><text x="790" y="477" text-anchor="middle" fill="#355da8">No new tab</text>
+  </g>
+  <text x="600" y="516" text-anchor="middle" fill="#8a93a3" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="12" letter-spacing=".8">IN-APP WEB VIEW · CONTAINER PREVIEW</text>
+  <text x="600" y="562" text-anchor="middle" fill="#98a1b1" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="13">The container is illustrated without inventing DSH product controls.</text>
+
+  <rect x="80" y="622" width="500" height="78" rx="16" fill="#eef8f3" stroke="#d7eee3"/>
+  <circle cx="112" cy="661" r="18" fill="#20a66a"/><rect x="104" y="655" width="16" height="12" rx="2" fill="none" stroke="#fff" stroke-width="2"/><path d="M107 664h10" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+  <text x="144" y="654" fill="#187a52" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" font-weight="700">Close the window</text>
+  <text x="144" y="679" fill="#4a6f60" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14">The menu bar whale and service remain available.</text>
+
+  <rect x="620" y="622" width="500" height="78" rx="16" fill="#fff5eb" stroke="#f3e2ce"/>
+  <circle cx="652" cy="661" r="18" fill="#d18336"/><circle cx="645" cy="661" r="2.2" fill="#fff"/><circle cx="652" cy="661" r="2.2" fill="#fff"/><circle cx="659" cy="661" r="2.2" fill="#fff"/>
+  <text x="684" y="654" fill="#a65b17" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" font-weight="700">Quit from the menu</text>
+  <text x="684" y="679" fill="#7e654e" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14">The controller quits; the service keeps running.</text>
+
+  <text x="80" y="736" fill="#7b8495" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14">Interface preview · Controller UI only · No user data</text>
+</svg>
