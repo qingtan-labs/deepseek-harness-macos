@@ -10,7 +10,9 @@ readonly REQUIRED_FILES=(
   CODE_OF_CONDUCT.md LICENSE manifest.json
   src/DeepSeekHarness.m src/DeepSeekHarnessLoginHelper.m
   scripts/build-release.command scripts/install.command
+  docs/images/harness-live.en.jpg docs/images/harness-live.zh-Hans.jpg
   docs/images/menu-bar-controller.svg docs/images/browser-reuse.svg docs/images/in-app-window.svg
+  docs/images/menu-bar-controller.zh-Hans.svg docs/images/browser-reuse.zh-Hans.svg docs/images/in-app-window.zh-Hans.svg
 )
 
 cd "$ROOT_DIR"
@@ -36,7 +38,15 @@ manifest_version="$(/usr/bin/plutil -extract version raw manifest.json)"
 /usr/bin/grep -Fq "DeepSeek-Harness-$EXPECTED_VERSION-macOS" scripts/build-release.command
 /usr/bin/grep -Fq "DeepSeek-Harness-$EXPECTED_VERSION-macOS.zip" README.md
 /usr/bin/grep -Fq "DeepSeek-Harness-$EXPECTED_VERSION-macOS.zip" README.zh-Hans.md
-/usr/bin/xmllint --noout docs/images/menu-bar-controller.svg docs/images/browser-reuse.svg docs/images/in-app-window.svg
+/usr/bin/xmllint --noout \
+  docs/images/menu-bar-controller.svg \
+  docs/images/browser-reuse.svg \
+  docs/images/in-app-window.svg \
+  docs/images/menu-bar-controller.zh-Hans.svg \
+  docs/images/browser-reuse.zh-Hans.svg \
+  docs/images/in-app-window.zh-Hans.svg
+/usr/bin/sips -g format docs/images/harness-live.en.jpg | /usr/bin/grep -Fq 'format: jpeg'
+/usr/bin/sips -g format docs/images/harness-live.zh-Hans.jpg | /usr/bin/grep -Fq 'format: jpeg'
 
 if /usr/bin/find . -path './.git' -prune -o -path './.build' -prune -o -path './dist' -prune \
   -o \( -name '.DS_Store' -o -name '*.app' -o -name '*.zip' \) -print | /usr/bin/grep -q .; then

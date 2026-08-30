@@ -2,7 +2,11 @@
 
 [English documentation](../README.md) · [简体中文说明](../README.zh-Hans.md)
 
-## Interface previews
+## Interface tour
+
+![Live Harness workspace](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/harness-live.en.jpg)
+
+The image above is a real, privacy-safe capture of a blank Harness session. It contains no API key, conversation history, or user content. The images below are workflow previews made with demonstration content.
 
 ![Menu bar controller](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.svg)
 
@@ -10,7 +14,7 @@
 
 ![In-app window](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/in-app-window.svg)
 
-These previews contain demonstration content only. The native application automatically uses English or Simplified Chinese according to macOS language settings.
+The native application automatically uses English or Simplified Chinese according to macOS language settings.
 
 ## Opening Harness
 

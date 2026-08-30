@@ -43,21 +43,25 @@ The project is free and open source. It will never ask you to send an API key, p
 
 ## Product tour
 
-The previews below use demonstration content only. They mirror the real macOS interaction structure without exposing a user's local Harness sessions.
+### Actual Harness workspace
 
-### Dock and menu bar, together
+![DeepSeek Harness live workspace in English](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/harness-live.en.jpg)
+
+This is a real, privacy-safe capture of a blank Harness session. It contains no API key, conversation history, or user content. The remaining images are interaction previews made with demonstration content.
+
+### Dock and menu bar, together (interaction preview)
 
 ![DeepSeek Harness shared Dock and menu bar controller](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.svg)
 
 The Dock icon and menu bar whale control the same application. Service health, opening preference, login startup, diagnostics, and quit behavior stay in one menu.
 
-### Focus the existing browser tab
+### Focus the existing browser tab (workflow preview)
 
 ![DeepSeek Harness existing browser tab reuse](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/browser-reuse.svg)
 
 When the selected browser permits inspection, clicking the Dock icon focuses the existing local Harness page instead of opening a duplicate.
 
-### Optional in-app window
+### Optional in-app window (workflow preview)
 
 ![DeepSeek Harness native in-app window](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/in-app-window.svg)
 

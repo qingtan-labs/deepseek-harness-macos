@@ -39,23 +39,27 @@ DeepSeek Harness macOS 版是社区开发的辅助应用，把 Dock 启动入口
 
 ## 使用效果
 
-以下效果图只使用演示内容，按照真实 macOS 交互结构制作，不包含任何用户的本地 Harness 会话或隐私数据。图片使用英文界面展示；应用在简体中文系统中会自动显示中文。
+### 实际运行界面
 
-### Dock 与菜单栏合并
+![DeepSeek Harness 中文实际运行界面](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/harness-live.zh-Hans.jpg)
 
-![DeepSeek Harness Dock 与菜单栏统一控制器](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.svg)
+这是从真实 Harness 空白会话截取的中文界面，不含 API Key、历史会话或用户内容。下方图片用于说明控制器交互，全部采用中文演示内容。
+
+### Dock 与菜单栏合并（交互预览）
+
+![DeepSeek Harness Dock 与菜单栏统一控制器中文预览](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.zh-Hans.svg)
 
 Dock 图标和菜单栏小鲸鱼控制同一个应用。服务状态、默认打开方式、登录启动、诊断和退出入口都集中在同一菜单中。
 
-### 聚焦已有浏览器标签
+### 聚焦已有浏览器标签（流程预览）
 
-![DeepSeek Harness 复用已有浏览器标签](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/browser-reuse.svg)
+![DeepSeek Harness 复用已有浏览器标签中文预览](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/browser-reuse.zh-Hans.svg)
 
 所选浏览器允许检测时，点击 Dock 会聚焦已有本地 Harness 页面，而不是重复打开新标签。
 
-### 可选的应用内窗口
+### 可选的应用内窗口（流程预览）
 
-![DeepSeek Harness 原生应用内窗口](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/in-app-window.svg)
+![DeepSeek Harness 原生应用内窗口中文预览](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/in-app-window.zh-Hans.svg)
 
 原生 WebKit 窗口只保留一个本地会话。关闭窗口不会退出菜单栏小鲸鱼，也不会停止 Harness 服务。
 
