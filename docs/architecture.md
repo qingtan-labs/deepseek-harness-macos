@@ -17,8 +17,8 @@ DeepSeek Harness for macOS is a small Objective-C/AppKit application built direc
 ## Opening flow
 
 1. A Dock or menu action reads the saved browser/in-app preference.
-2. The controller checks listener identity and HTTP health at `127.0.0.1:3080`.
-3. A stopped owned service is started with `--no-open` and given a bounded health-check window, so only the controller presents the selected browser or in-app surface.
+2. The controller checks listener identity, HTTP health, and the local availability of every plugin client asset advertised by the DSH boot manifest at `127.0.0.1:3080`.
+3. A stopped owned service is started with `--no-open` and given a bounded health-check window, so only the controller presents the selected browser or in-app surface. If an owned process reports a stale plugin manifest, the controller restarts it once before presentation; external processes still require confirmation.
 4. Browser mode probes supported open browsers and focuses an exact local tab when found; otherwise it opens the URL.
 5. In-app mode creates or restores a single WebKit window.
 

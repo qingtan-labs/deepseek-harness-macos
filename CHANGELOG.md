@@ -7,6 +7,7 @@ All notable changes are documented here. This project follows [Semantic Versioni
 ### Fixed
 
 - Managed DSH services now start with `--no-open`, leaving all browser and in-app presentation decisions to the shared controller and preventing an extra browser tab during service startup.
+- Opening Harness now preflights every plugin client asset advertised by the DSH boot manifest. A controller-owned service with a stale manifest is restarted automatically before presentation; an externally started service still requires confirmation before it is interrupted.
 
 ## [1.0.0] - 2026-08-30
 

@@ -68,7 +68,7 @@ The native WebKit window keeps one local session. Closing the window does not qu
 - **One app, two entry points.** The Dock icon and menu bar whale belong to the same process; there is no second utility to launch.
 - **Reuse before opening.** Browser mode checks supported Safari and Chromium-family browsers for an existing local Harness tab. In-app mode restores the same window and web session.
 - **Remember my choice.** Browser or in-app mode can be saved as the default and changed from the menu at any time.
-- **Service-aware actions.** HTTP health checks, port-conflict protection, and ownership records prevent the controller from stopping unrelated processes.
+- **Service-aware actions.** Page and plugin-asset health checks, stale-loader recovery, port-conflict protection, and ownership records keep startup reliable without stopping unrelated processes.
 - **Quiet login startup.** The macOS Login Items helper starts the menu bar controller without opening a page.
 - **Native localization and appearance.** English and Simplified Chinese are included; native UI follows the Mac's Light/Dark appearance automatically.
 - **Universal Mac build.** One package supports Apple silicon and Intel Macs.

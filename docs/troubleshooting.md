@@ -15,7 +15,7 @@ Private/incognito windows, browser policies, different ports, and denied automat
 
 ## Harness says “Failed to load plugins”
 
-This can happen when a plugin was updated or removed while an older DSH web process is still running with the previous loader list in memory. Restart the service from the whale menu, then reload Harness. A clean restart rebuilds the loader list without deleting sessions, settings, credentials, or other plugins.
+This can happen when a plugin was updated or removed while an older DSH web process is still running with the previous loader list in memory. The controller preflights the advertised plugin assets before opening the page and automatically restarts a controller-owned stale service. For a service started by Terminal or another tool, it asks before interrupting the process. A clean restart rebuilds the loader list without deleting sessions, settings, credentials, or other plugins.
 
 If the same plugin is still reported after a restart, copy sanitized diagnostics from the Service menu and verify that the named package still exists in the active DSH web profile. Do not delete the complete `~/.dsh` directory as a first troubleshooting step.
 

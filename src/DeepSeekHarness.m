@@ -415,12 +415,107 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     [task resume];
 }
 
+- (NSArray<NSURL *> *)pluginAssetURLsFromHTMLData:(NSData *)data {
+    if (data.length == 0) return @[];
+    NSString *html = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    if (html.length == 0) return @[];
+
+    NSString *marker = @"globalThis[\"__DSH_BOOT__\"] = ";
+    NSRange markerRange = [html rangeOfString:marker];
+    if (markerRange.location == NSNotFound) return @[];
+    NSUInteger jsonStart = NSMaxRange(markerRange);
+    NSRange scriptEnd = [html rangeOfString:@"</script>"
+                                    options:0
+                                      range:NSMakeRange(jsonStart, html.length - jsonStart)];
+    if (scriptEnd.location == NSNotFound) return @[];
+
+    NSString *payload = [html substringWithRange:NSMakeRange(jsonStart, scriptEnd.location - jsonStart)];
+    payload = [payload stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+    if ([payload hasSuffix:@";"]) payload = [payload substringToIndex:payload.length - 1];
+    NSData *jsonData = [payload dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *boot = jsonData ? [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil] : nil;
+    NSArray *entries = [boot isKindOfClass:NSDictionary.class] ? boot[@"entries"] : nil;
+    if (![entries isKindOfClass:NSArray.class]) return @[];
+
+    NSMutableOrderedSet<NSURL *> *assetURLs = [NSMutableOrderedSet orderedSet];
+    for (id candidate in entries) {
+        if (![candidate isKindOfClass:NSDictionary.class]) continue;
+        NSString *path = candidate[@"url"];
+        if (![path isKindOfClass:NSString.class]) continue;
+        NSURL *url = [NSURL URLWithString:path relativeToURL:self.webURL].absoluteURL;
+        BOOL isLocalPlugin = [url.scheme isEqualToString:@"http"] &&
+            [url.host isEqualToString:@"127.0.0.1"] && url.port.integerValue == 3080 &&
+            [url.path hasPrefix:@"/plugins/"];
+        if (isLocalPlugin) [assetURLs addObject:url];
+    }
+    return assetURLs.array;
+}
+
+- (void)checkPluginAssetsInHTMLData:(NSData *)data completion:(void (^)(BOOL healthy))completion {
+    NSArray<NSURL *> *assetURLs = [self pluginAssetURLsFromHTMLData:data];
+    if (assetURLs.count == 0) {
+        dispatch_async(dispatch_get_main_queue(), ^{ completion(YES); });
+        return;
+    }
+
+    dispatch_group_t group = dispatch_group_create();
+    NSObject *resultLock = [[NSObject alloc] init];
+    __block BOOL assetsHealthy = YES;
+    for (NSURL *url in assetURLs) {
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
+                                                              cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                                          timeoutInterval:2.0];
+        request.HTTPMethod = @"HEAD";
+        dispatch_group_enter(group);
+        NSURLSessionDataTask *task = [NSURLSession.sharedSession dataTaskWithRequest:request
+            completionHandler:^(__unused NSData *responseData, NSURLResponse *response, NSError *error) {
+                NSInteger status = [(NSHTTPURLResponse *)response statusCode];
+                if (error != nil || status < 200 || status >= 400) {
+                    @synchronized (resultLock) { assetsHealthy = NO; }
+                }
+                dispatch_group_leave(group);
+            }];
+        [task resume];
+    }
+    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        BOOL healthy;
+        @synchronized (resultLock) { healthy = assetsHealthy; }
+        completion(healthy);
+    });
+}
+
+- (void)checkPresentationHealth:(void (^)(BOOL healthy))completion {
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.webURL
+                                                          cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:2.0];
+    request.HTTPMethod = @"GET";
+    NSURLSessionDataTask *task = [NSURLSession.sharedSession dataTaskWithRequest:request
+        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            NSInteger status = [(NSHTTPURLResponse *)response statusCode];
+            if (error != nil || status < 200 || status >= 400) {
+                dispatch_async(dispatch_get_main_queue(), ^{ completion(NO); });
+                return;
+            }
+            [self checkPluginAssetsInHTMLData:data completion:completion];
+        }];
+    [task resume];
+}
+
 - (void)inspectServiceAndHealth:(void (^)(DSHListenerInfo *info, BOOL healthy))completion {
     dispatch_async(self.inspectionQueue, ^{
         DSHListenerInfo *info = [self listenerInfo];
         dispatch_async(dispatch_get_main_queue(), ^{
             if (!info.isHarness) { completion(info, NO); return; }
             [self checkHTTPHealth:^(BOOL healthy) { completion(info, healthy); }];
+        });
+    });
+}
+
+- (void)inspectServiceAndPresentationHealth:(void (^)(DSHListenerInfo *info, BOOL healthy))completion {
+    dispatch_async(self.inspectionQueue, ^{
+        DSHListenerInfo *info = [self listenerInfo];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!info.isHarness) { completion(info, NO); return; }
+            [self checkPresentationHealth:^(BOOL healthy) { completion(info, healthy); }];
         });
     });
 }
@@ -448,7 +543,7 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     self.serviceState = DSHServiceStateUnknown;
     self.refreshInFlight = YES;
     [self applyServiceState];
-    [self inspectServiceAndHealth:^(DSHListenerInfo *info, BOOL healthy) {
+    [self inspectServiceAndPresentationHealth:^(DSHListenerInfo *info, BOOL healthy) {
         self.refreshInFlight = NO;
         [self setStateFromListener:info healthy:healthy];
         [self applyServiceState];
@@ -472,7 +567,7 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     if (self.openRequestInFlight) return;
     self.openRequestInFlight = YES;
     [self applyServiceState];
-    [self inspectServiceAndHealth:^(DSHListenerInfo *info, BOOL healthy) {
+    [self inspectServiceAndPresentationHealth:^(DSHListenerInfo *info, BOOL healthy) {
         self.openRequestInFlight = NO;
         if (info.pid > 0 && !info.isHarness) {
             self.serviceState = DSHServiceStateBlocked;
@@ -490,6 +585,10 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
         if (info.isHarness) {
             self.serviceState = DSHServiceStateUnhealthy;
             [self applyServiceState];
+            if (info.ownedByController) {
+                [self beginStopPID:info.pid restartAfterStop:YES presentAfterRestart:YES];
+                return;
+            }
             [self showUnhealthyServiceDecisionForInfo:info];
             return;
         }
@@ -573,10 +672,20 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
             return;
         }
         if (info.isHarness && healthy) {
-            [self writeOwnershipRecordForPID:info.pid dshPath:dshPath];
-            self.serviceState = DSHServiceStateRunning;
-            [self applyServiceState];
-            if (presentAfterReady || self.hasPendingPresentation) [self presentPendingHarness];
+            [self checkPresentationHealth:^(BOOL presentationHealthy) {
+                if (token != self.transitionToken || self.serviceState != DSHServiceStateStarting) return;
+                if (!presentationHealthy) {
+                    self.serviceState = DSHServiceStateUnhealthy;
+                    [self applyServiceState];
+                    [self showAlertWithTitle:L(@"服务未准备好")
+                                     message:[NSString stringWithFormat:L(@"服务已经启动，但一个或多个插件资源仍无法加载。请更新或移除有问题的插件，然后从鲸鱼菜单重启服务。日志：%@"), [self logPath]]];
+                    return;
+                }
+                [self writeOwnershipRecordForPID:info.pid dshPath:dshPath];
+                self.serviceState = DSHServiceStateRunning;
+                [self applyServiceState];
+                if (presentAfterReady || self.hasPendingPresentation) [self presentPendingHarness];
+            }];
             return;
         }
         if (attemptsRemaining <= 0) {
@@ -699,8 +808,8 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     NSAlert *alert = [[NSAlert alloc] init];
     alert.messageText = L(@"Harness 服务没有响应");
     alert.informativeText = info.ownedByController
-        ? L(@"端口已经被 Harness 占用，但网页健康检查失败。你可以重启服务或先查看日志。")
-        : L(@"这个 Harness 由控制器之外的工具启动，而且网页健康检查失败。重启可能中断其他工具中的任务。");
+        ? L(@"端口已经由 Harness 监听，但网页或插件资源健康检查失败。重新启动服务通常可以恢复。")
+        : L(@"这个 Harness 由控制器之外的工具启动，而且网页或插件资源健康检查失败。重启可能中断其他工具中的任务。");
     [alert addButtonWithTitle:L(@"重启服务")];
     [alert addButtonWithTitle:L(@"查看日志")];
     [alert addButtonWithTitle:L(@"取消")];

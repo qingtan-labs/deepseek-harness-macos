@@ -38,6 +38,8 @@ manifest_version="$(/usr/bin/plutil -extract version raw manifest.json)"
 /usr/bin/grep -Fq "DeepSeek-Harness-$EXPECTED_VERSION-macOS.zip" README.md
 /usr/bin/grep -Fq "DeepSeek-Harness-$EXPECTED_VERSION-macOS.zip" README.zh-Hans.md
 /usr/bin/grep -Fq 'self.serviceTask.arguments = @[ @"web", @"--no-open" ];' src/DeepSeekHarness.m
+/usr/bin/grep -Fq 'checkPluginAssetsInHTMLData' src/DeepSeekHarness.m
+/usr/bin/grep -Fq 'request.HTTPMethod = @"HEAD";' src/DeepSeekHarness.m
 /usr/bin/xmllint --noout \
   docs/images/menu-bar-controller.svg \
   docs/images/browser-reuse.svg \

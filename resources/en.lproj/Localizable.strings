@@ -51,6 +51,7 @@
 "启动过程中检测到其他监听进程；新启动的 Harness 已安全终止。" = "Another listener appeared while Harness was starting. The newly launched Harness process was stopped safely.";
 "服务未准备好" = "Service Is Not Ready";
 "已等待 30 秒，但网页健康检查仍未通过。请查看日志：%@" = "The web health check still failed after 30 seconds. Check the log: %@";
+"服务已经启动，但一个或多个插件资源仍无法加载。请更新或移除有问题的插件，然后从鲸鱼菜单重启服务。日志：%@" = "The service started, but one or more plugin assets still cannot load. Update or remove the affected plugin, then restart the service from the whale menu. Log: %@";
 
 "停止 DeepSeek Harness？" = "Stop DeepSeek Harness?";
 "停止外部启动的 Harness？" = "Stop the Externally Started Harness?";
@@ -69,8 +70,8 @@
 "服务未能停止" = "Service Did Not Stop";
 "已等待 15 秒。控制器不会强制终止进程，以免丢失工作。" = "The service did not stop after 15 seconds. The controller will not force-quit it, to avoid losing work.";
 "Harness 服务没有响应" = "Harness Service Is Not Responding";
-"端口已经被 Harness 占用，但网页健康检查失败。你可以重启服务或先查看日志。" = "The port is owned by Harness, but the web health check failed. You can restart the service or inspect the log first.";
-"这个 Harness 由控制器之外的工具启动，而且网页健康检查失败。重启可能中断其他工具中的任务。" = "This Harness service was started outside the controller and its web health check failed. Restarting it may interrupt work in other tools.";
+"端口已经由 Harness 监听，但网页或插件资源健康检查失败。重新启动服务通常可以恢复。" = "Harness is listening on the port, but its page or plugin asset health check failed. Restarting the service will usually recover it.";
+"这个 Harness 由控制器之外的工具启动，而且网页或插件资源健康检查失败。重启可能中断其他工具中的任务。" = "This Harness service was started outside the controller and its page or plugin asset health check failed. Restarting it may interrupt work in other tools.";
 
 "当前浏览器无法可靠复用标签页" = "This Browser Cannot Reliably Reuse Tabs";
 "为了避免重复标签，建议使用应用内窗口。这个选择只询问一次，以后可从菜单栏修改默认打开方式。" = "To avoid duplicate tabs, use the in-app window. This question is asked only once; you can change the default from the menu bar later.";
