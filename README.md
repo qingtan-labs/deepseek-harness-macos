@@ -53,7 +53,7 @@ The Dock icon and menu bar whale control the same application. The menu includes
 
 ### Focus the existing browser tab (workflow preview)
 
-![DeepSeek Harness existing browser tab reuse](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/browser-reuse.svg)
+![DeepSeek Harness existing browser tab reuse](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/browser-reuse.svg?v=2)
 
 When the selected browser permits inspection, clicking the Dock icon focuses the existing local Harness page instead of opening a duplicate.
 

@@ -47,7 +47,7 @@ Dock 图标和菜单栏小鲸鱼控制同一个应用；所有入口都集中在
 
 ### 聚焦已有浏览器标签（流程预览）
 
-![DeepSeek Harness 复用已有浏览器标签中文预览](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/browser-reuse.zh-Hans.svg)
+![DeepSeek Harness 复用已有浏览器标签中文预览](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/browser-reuse.zh-Hans.svg?v=2)
 
 所选浏览器允许检测时，点击 Dock 会聚焦已有本地 Harness 页面，而不是重复打开新标签。
 
