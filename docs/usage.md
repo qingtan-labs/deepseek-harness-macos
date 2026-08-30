@@ -1,5 +1,17 @@
 # Usage guide
 
+[English documentation](../README.md) · [简体中文说明](../README.zh-Hans.md)
+
+## Interface previews
+
+![Menu bar controller](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.svg)
+
+![Existing browser tab reuse](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/browser-reuse.svg)
+
+![In-app window](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/in-app-window.svg)
+
+These previews contain demonstration content only. The native application automatically uses English or Simplified Chinese according to macOS language settings.
+
 ## Opening Harness
 
 The Dock icon and menu bar whale are two controls for one running application.
@@ -30,4 +42,3 @@ Enable login startup from the menu. macOS may show the item under **System Setti
 ## Language and appearance
 
 macOS chooses English or Simplified Chinese from the application's language settings. Other languages fall back to English. Native menus and windows follow the device Light/Dark appearance; no separate theme preference is needed.
-

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">DeepSeek Harness browser tab reuse preview</title>
+  <desc id="desc">A privacy-safe browser preview showing an existing local Harness tab being focused instead of a duplicate tab being created.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eef4ff"/><stop offset="1" stop-color="#f7f9fc"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#172033" flood-opacity=".18"/></filter>
+  </defs>
+  <rect width="1200" height="760" rx="28" fill="url(#bg)"/>
+  <text x="80" y="88" fill="#111827" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700">One click. No duplicate tab.</text>
+  <text x="80" y="130" fill="#667085" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="20">Harness focuses the existing local page whenever the browser allows inspection.</text>
+  <g filter="url(#shadow)">
+    <rect x="80" y="178" width="1040" height="500" rx="22" fill="#fff" stroke="#cdd6e5"/>
+  </g>
+  <path d="M80 200a22 22 0 0 1 22-22h996a22 22 0 0 1 22 22v80H80z" fill="#e8edf5"/>
+  <circle cx="110" cy="205" r="7" fill="#ff605c"/><circle cx="134" cy="205" r="7" fill="#ffbd44"/><circle cx="158" cy="205" r="7" fill="#00ca4e"/>
+  <rect x="202" y="194" width="292" height="56" rx="12" fill="#fff"/>
+  <circle cx="228" cy="222" r="11" fill="#111827"/><text x="249" y="228" fill="#222b3a" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="16">DeepSeek Harness</text>
+  <rect x="110" y="256" width="970" height="42" rx="12" fill="#fff"/>
+  <circle cx="136" cy="277" r="8" fill="#21a366"/><text x="156" y="283" fill="#3b4555" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="15">127.0.0.1:3080</text>
+  <rect x="80" y="298" width="218" height="380" fill="#111827"/>
+  <text x="112" y="344" fill="#fff" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="18" font-weight="650">DeepSeek Harness</text>
+  <rect x="104" y="372" width="170" height="42" rx="10" fill="#293244"/><text x="126" y="398" fill="#fff" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="15">Workspace</text>
+  <text x="126" y="452" fill="#aeb8c8" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="15">Sessions</text>
+  <text x="126" y="495" fill="#aeb8c8" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="15">Settings</text>
+  <text x="126" y="538" fill="#aeb8c8" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="15">Diagnostics</text>
+  <g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+    <text x="346" y="360" fill="#111827" font-size="28" font-weight="700">Ready when you are</text>
+    <text x="346" y="393" fill="#667085" font-size="17">Local Harness is healthy and available.</text>
+    <rect x="346" y="434" width="316" height="126" rx="16" fill="#f7f9fc" stroke="#e0e6ef"/>
+    <text x="372" y="470" fill="#344054" font-size="15" font-weight="650">LOCAL SERVICE</text>
+    <text x="372" y="505" fill="#111827" font-size="20">Connected on port 3080</text>
+    <text x="372" y="534" fill="#21a366" font-size="15">● Healthy</text>
+    <rect x="688" y="434" width="316" height="126" rx="16" fill="#f7f9fc" stroke="#e0e6ef"/>
+    <text x="714" y="470" fill="#344054" font-size="15" font-weight="650">OPENING METHOD</text>
+    <text x="714" y="505" fill="#111827" font-size="20">Default browser</text>
+    <text x="714" y="534" fill="#667085" font-size="15">Saved and changeable</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="703" y="576" width="354" height="70" rx="18" fill="#0f9f68"/>
+  </g>
+  <circle cx="738" cy="611" r="13" fill="#fff" opacity=".95"/><path d="m732 611 4 4 8-9" fill="none" stroke="#0f9f68" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="764" y="606" fill="#fff" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" font-weight="650">Existing tab focused</text>
+  <text x="764" y="628" fill="#d9f7eb" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14">No duplicate page was created</text>
+  <text x="80" y="720" fill="#7b8495" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14">Interface preview · Demonstration content only · No user data</text>
+</svg>
+

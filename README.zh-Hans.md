@@ -13,7 +13,7 @@
   <a href="LICENSE"><img alt="MIT 协议" src="https://img.shields.io/badge/license-MIT-0b7285"></a>
 </p>
 
-<p align="center"><a href="README.md">English</a> · <strong>简体中文</strong></p>
+<p align="center"><a href="README.md">English（默认）</a> · <strong>简体中文</strong></p>
 
 <p align="center">
   <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.0-macOS.zip"><strong>下载 DeepSeek Harness 1.0.0 macOS 版</strong></a>
@@ -36,6 +36,28 @@ DeepSeek Harness macOS 版是社区开发的辅助应用，把 Dock 启动入口
 | 安全问题 | [私密漏洞报告](https://github.com/qingtan-labs/deepseek-harness-macos/security/advisories/new) |
 
 本项目完全免费且开源，绝不会要求你在 Issue 中发送 API Key、密码或登录验证码。
+
+## 使用效果
+
+以下效果图只使用演示内容，按照真实 macOS 交互结构制作，不包含任何用户的本地 Harness 会话或隐私数据。图片使用英文界面展示；应用在简体中文系统中会自动显示中文。
+
+### Dock 与菜单栏合并
+
+![DeepSeek Harness Dock 与菜单栏统一控制器](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.svg)
+
+Dock 图标和菜单栏小鲸鱼控制同一个应用。服务状态、默认打开方式、登录启动、诊断和退出入口都集中在同一菜单中。
+
+### 聚焦已有浏览器标签
+
+![DeepSeek Harness 复用已有浏览器标签](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/browser-reuse.svg)
+
+所选浏览器允许检测时，点击 Dock 会聚焦已有本地 Harness 页面，而不是重复打开新标签。
+
+### 可选的应用内窗口
+
+![DeepSeek Harness 原生应用内窗口](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/in-app-window.svg)
+
+原生 WebKit 窗口只保留一个本地会话。关闭窗口不会退出菜单栏小鲸鱼，也不会停止 Harness 服务。
 
 ## 为什么使用它
 
@@ -121,4 +143,3 @@ Windows 版本计划放在独立仓库中，以保持不同平台的打包与交
 ## 开源协议
 
 源代码使用 [MIT License](LICENSE)。第三方名称、标志、软件包与商标仍受其权利人的条款约束。
-

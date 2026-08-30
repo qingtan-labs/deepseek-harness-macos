@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <strong>English</strong> · <a href="README.zh-Hans.md">简体中文</a>
+  <strong>English (default)</strong> · <a href="README.zh-Hans.md">简体中文</a>
 </p>
 
 <p align="center">
@@ -40,6 +40,28 @@ The controller manages only `http://127.0.0.1:3080`. It does not store, proxy, o
 | Security reports | [Private vulnerability reporting](https://github.com/qingtan-labs/deepseek-harness-macos/security/advisories/new) |
 
 The project is free and open source. It will never ask you to send an API key, password, or login code through an Issue.
+
+## Product tour
+
+The previews below use demonstration content only. They mirror the real macOS interaction structure without exposing a user's local Harness sessions.
+
+### Dock and menu bar, together
+
+![DeepSeek Harness shared Dock and menu bar controller](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.svg)
+
+The Dock icon and menu bar whale control the same application. Service health, opening preference, login startup, diagnostics, and quit behavior stay in one menu.
+
+### Focus the existing browser tab
+
+![DeepSeek Harness existing browser tab reuse](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/browser-reuse.svg)
+
+When the selected browser permits inspection, clicking the Dock icon focuses the existing local Harness page instead of opening a duplicate.
+
+### Optional in-app window
+
+![DeepSeek Harness native in-app window](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/in-app-window.svg)
+
+The native WebKit window keeps one local session. Closing the window does not quit the menu bar whale or stop Harness.
 
 ## Why use it?
 
@@ -125,4 +147,3 @@ The Windows companion is planned as a separate repository so platform-specific p
 ## License
 
 Source code is available under the [MIT License](LICENSE). Third-party names, logos, packages, and trademarks remain subject to their owners' terms.
-
