@@ -39,15 +39,7 @@ DeepSeek Harness macOS 版是社区开发的辅助应用，把 Dock 启动入口
 
 ## 使用效果
 
-### 菜单栏控制（实际截图）
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-live.zh-Hans.png" width="277" alt="DeepSeek Harness 中文菜单栏实际截图">
-</p>
-
-真实菜单包含：外部启动状态、打开/聚焦、本次改用应用内窗口、默认打开方式、服务子菜单、登录时静默启动、使用说明、关于版本，以及“退出控制器但服务继续运行”。
-
-### Dock 与菜单栏合并（完整交互预览）
+### Dock 与菜单栏合并（交互预览）
 
 ![DeepSeek Harness Dock 与菜单栏统一控制器中文预览](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.zh-Hans.svg?v=2)
 

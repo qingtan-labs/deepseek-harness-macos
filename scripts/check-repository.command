@@ -10,7 +10,6 @@ readonly REQUIRED_FILES=(
   CODE_OF_CONDUCT.md LICENSE manifest.json
   src/DeepSeekHarness.m src/DeepSeekHarnessLoginHelper.m
   scripts/build-release.command scripts/install.command
-  docs/images/menu-bar-live.zh-Hans.png
   docs/images/menu-bar-controller.svg docs/images/browser-reuse.svg docs/images/in-app-window.svg
   docs/images/menu-bar-controller.zh-Hans.svg docs/images/browser-reuse.zh-Hans.svg docs/images/in-app-window.zh-Hans.svg
 )
@@ -45,8 +44,6 @@ manifest_version="$(/usr/bin/plutil -extract version raw manifest.json)"
   docs/images/menu-bar-controller.zh-Hans.svg \
   docs/images/browser-reuse.zh-Hans.svg \
   docs/images/in-app-window.zh-Hans.svg
-/usr/bin/sips -g format docs/images/menu-bar-live.zh-Hans.png | /usr/bin/grep -Fq 'format: png'
-
 if /usr/bin/find . -path './.git' -prune -o -path './.build' -prune -o -path './dist' -prune \
   -o \( -name '.DS_Store' -o -name '*.app' -o -name '*.zip' \) -print | /usr/bin/grep -q .; then
   print -u2 -r -- 'Generated artifacts are present outside ignored build directories.'
