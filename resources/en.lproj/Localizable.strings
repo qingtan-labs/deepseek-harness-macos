@@ -7,6 +7,7 @@
 "重启服务" = "Restart Service";
 "停止服务" = "Stop Service";
 "立即刷新状态" = "Refresh Status Now";
+"检查 DSH 更新…" = "Check for DSH Updates…";
 "复制本地地址" = "Copy Local Address";
 "复制诊断信息" = "Copy Diagnostics";
 "查看日志" = "Show Log";
@@ -21,6 +22,7 @@
 "使用应用内窗口" = "Use In-App Window";
 
 "服务未启动" = "Service Is Stopped";
+"正在安装运行环境…" = "Installing Runtime…";
 "正在启动服务…" = "Starting Service…";
 "服务正在运行" = "Service Is Running";
 "服务正在运行（外部启动）" = "Service Is Running (Started Externally)";
@@ -36,6 +38,40 @@
 "打开方式：应用内窗口" = "Open With: In-App Window";
 "本次改用应用内窗口" = "Use In-App Window This Time";
 "本次改用默认浏览器" = "Use Default Browser This Time";
+
+"无法检查 DSH 更新" = "Could Not Check for DSH Updates";
+"无法读取当前 DSH 版本。请尝试修复运行环境。" = "Could not read the installed DSH version. Try repairing the managed runtime.";
+"无法连接 npm 官方注册表或读取最新版本。请检查网络后重试。" = "Could not reach the official npm registry or read the latest version. Check your network and try again.";
+"DSH 已是最新版本" = "DSH Is Up to Date";
+"当前版本：%@\nnpm latest：%@" = "Installed: %@\nnpm latest: %@";
+"这个版本已经过当前控制器验证。" = "This version has been verified with the current controller.";
+"当前控制器验证版本为 %@；更新后部分插件或 Profile 可能需要同步升级。" = "This controller is verified with %@. After updating, some plugins or Profiles may also need updates.";
+"更新会安全停止服务、事务化替换应用托管的 DSH，然后重新启动原本正在运行的服务。" = "The update safely stops the service, transactionally replaces the app-managed DSH, and restarts the service only if it was running.";
+"当前 DSH 由应用外部管理。继续会切换到应用托管版本；若服务正在运行，会先安全停止再重新启动。" = "The current DSH is managed outside this app. Continuing switches to the app-managed version; a running service is safely stopped and restarted.";
+"发现 DSH 更新" = "DSH Update Available";
+"当前版本：%@\n最新版本：%@\n\n%@\n%@" = "Installed: %@\nLatest: %@\n\n%@\n%@";
+"更新到 %@" = "Update to %@";
+"安装 DeepSeek Harness 运行环境？" = "Install the DeepSeek Harness Runtime?";
+"应用会先检测并复用这台 Mac 上现有且兼容的 DSH 与 Node.js；不会覆盖用户安装的环境。只有 DSH 缺失、损坏或版本低于 %@ 时才补装应用托管的 DSH；只有 Node.js 缺失、损坏或低于 20 时才下载私有 Node.js。不需要管理员权限。需要下载时会访问 nodejs.org 和 npm 官方注册表。" = "The app first detects and reuses compatible DSH and Node.js installations already on this Mac; it never overwrites a user-managed environment. It installs an app-managed DSH only when DSH is missing, broken, or older than %@, and downloads private Node.js only when Node.js is missing, broken, or older than 20. Administrator access is not required. Downloads, when needed, use nodejs.org and the official npm registry.";
+"一键安装" = "Install Automatically";
+"无法安装运行环境" = "Could Not Install Runtime";
+"端口 3080 正被其他服务占用。请先释放端口，再重试更新。" = "Port 3080 is in use by another service. Free the port before retrying the update.";
+"停止外部启动的 Harness 以继续？" = "Stop the Externally Started Harness to Continue?";
+"端口 3080 上的 Harness 不是由当前控制器启动的。安装托管运行环境需要先停止它，可能会中断终端或其他工具中的任务；完成后控制器会重新启动服务。" = "The Harness service on port 3080 was not started by this controller. Installing the managed runtime must stop it first and may interrupt work in Terminal or other tools; the controller restarts the service afterward.";
+"停止并继续" = "Stop and Continue";
+"应用内置安装器缺失。请重新下载完整安装包。" = "The bundled runtime installer is missing. Download the complete package again.";
+"无法写入安装日志：%@" = "Could not write the installation log: %@";
+"DSH 更新完成" = "DSH Update Complete";
+"运行环境已就绪" = "Runtime Ready";
+"已选择可用的现有环境，或补齐了缺失组件。控制器现在会启动服务。" = "A working existing environment was selected, or only missing components were added. The controller will now start the service.";
+"已安装 DSH %@。控制器现在会重新启动此前运行的服务。" = "DSH %@ is installed. The controller will now restart the service that was previously running.";
+"已安装 DSH %@。服务保持停止，可随时从 Dock 或鲸鱼菜单打开。" = "DSH %@ is installed. The service remains stopped and can be opened from the Dock or whale menu at any time.";
+"运行环境安装失败" = "Runtime Installation Failed";
+"安装 DSH 依赖时耗尽了 Node.js 内存。请先关闭占用内存较多的应用后重试；安装器会根据设备内存使用 3–8 GB 的堆上限。失败的候选环境未被启用，原有环境已保留。日志：%@" = "Node.js ran out of memory while installing DSH dependencies. Close memory-intensive apps and retry; the installer uses a device-adaptive 3–8 GB heap limit. The failed candidate was not activated, and the previous environment was preserved. Log: %@";
+"失败的候选运行环境未被启用；如果此前已有可用运行环境，它已被保留。请检查网络后重试，或查看日志：%@" = "The failed runtime candidate was not activated. If a working runtime already existed, it was preserved. Check your network and retry, or inspect the log: %@";
+"重试" = "Retry";
+"正在安装运行环境" = "Runtime Installation in Progress";
+"请等待当前 DSH 安装或更新完成后再退出，避免中断已开始的安全替换。" = "Wait for the current DSH installation or update to finish before quitting so the safe replacement is not interrupted.";
 
 "端口 3080 已被占用" = "Port 3080 Is Already in Use";
 "PID %d 正在监听 3080，但不是 DeepSeek Harness。控制器不会打开或停止这个进程。" = "PID %d is listening on port 3080, but it is not DeepSeek Harness. The controller will not open or stop that process.";
@@ -106,5 +142,5 @@
 "未识别" = "Unknown";
 "已复制诊断信息 ✓" = "Diagnostics Copied ✓";
 "DeepSeek Harness 使用说明" = "DeepSeek Harness User Guide";
-"• 点击 Dock：按默认方式打开或回到 Harness\n• 点击菜单栏小鲸鱼：查看状态、切换打开方式、重启或停止服务\n• 红色圆点表示异常，橙色表示处理中，绿色表示运行正常\n• 应用内窗口关闭后，小鲸鱼和服务仍继续运行\n• “登录时静默启动”只启动小鲸鱼，不自动打开页面" = "• Click the Dock icon to open or return to Harness using your default method\n• Click the whale in the menu bar to check status, change the opening method, restart, or stop the service\n• Red means an error, orange means work is in progress, and green means the service is healthy\n• Closing the in-app window keeps the whale and service running\n• Launch Silently at Login starts only the whale and does not open a page";
+"• 点击 Dock：按默认方式打开或回到 Harness\n• 点击菜单栏小鲸鱼：查看状态、切换打开方式、重启或停止服务\n• 从“服务”菜单可主动检查 DSH 更新，确认后才会安装\n• 灰色空心点表示服务已停止，绿色实心点表示运行正常；橙色表示处理中，红色表示异常\n• 应用内窗口关闭后，小鲸鱼和服务仍继续运行\n• “登录时静默启动”只启动小鲸鱼，不自动打开页面" = "• Click the Dock icon to open or return to Harness using your default method\n• Click the whale in the menu bar to check status, change the opening method, restart, or stop the service\n• Use the Service menu to check for DSH updates; installation starts only after confirmation\n• A hollow gray circle means the service is stopped, while a solid green circle means it is healthy; orange means work is in progress and red means an error\n• Closing the in-app window keeps the whale and service running\n• Launch Silently at Login starts only the whale and does not open a page";
 "版本 %@\n本地地址：%@\n默认打开方式：%@\n服务状态：%@\n\n控制器不会存储或上传你的 DeepSeek 凭据。" = "Version %@\nLocal Address: %@\nDefault Opening Method: %@\nService Status: %@\n\nThe controller does not store or upload your DeepSeek credentials.";

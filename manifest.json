@@ -8,7 +8,10 @@
   "languages": ["en", "zh-Hans"],
   "appearance": "follows macOS Light/Dark mode",
   "nodeVersion": "22.21.1",
+  "minimumReusableNodeMajor": 20,
   "dshVersion": "0.1.1-rc.2",
+  "runtimePolicy": "reuse a working user DSH at or above the tested baseline; otherwise reuse Node.js 20+ and add only missing app-managed components",
+  "dshVersionPolicy": "0.1.1-rc.2 is the tested minimum and clean-install baseline; npm latest is installed only after explicit user confirmation",
   "signing": "ad-hoc; Developer ID signing and notarization are required for Gatekeeper-ready distribution",
   "officialProject": false
 }

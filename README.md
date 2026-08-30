@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.0-macOS.zip"><strong>Download DeepSeek Harness 1.0.0 for macOS</strong></a>
+  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.0-macOS.dmg"><strong>Download the DeepSeek Harness 1.0.0 DMG</strong></a>
 </p>
 
 DeepSeek Harness for macOS is a community-built companion that combines the Dock launcher, menu bar controls, local service management, and an optional in-app window. Clicking the Dock icon focuses an existing Harness page or window whenever possible; it does not deliberately create another tab every time.
@@ -47,9 +47,9 @@ The previews below use demonstration content only and focus on the macOS control
 
 ### Dock and menu bar, together (interaction preview)
 
-![DeepSeek Harness shared Dock and menu bar controller](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.svg?v=2)
+![DeepSeek Harness shared Dock and menu bar controller](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.svg?v=3)
 
-The Dock icon and menu bar whale control the same application. The menu includes external-service status, Open/Focus, a one-time alternate window, the saved opening method, service controls, silent login startup, the user guide, version information, and an explicit controller-only quit that leaves an externally started service running.
+The Dock icon and menu bar whale control the same application. The menu includes external-service status, Open/Focus, a one-time alternate window, the saved opening method, service controls, a user-confirmed DSH update check, silent login startup, the user guide, version information, and an explicit controller-only quit that leaves an externally started service running.
 
 ### Focus the existing browser tab (workflow preview)
 
@@ -69,6 +69,9 @@ The native WebKit window keeps one local session. Closing the window does not qu
 - **Reuse before opening.** Browser mode checks supported Safari and Chromium-family browsers for an existing local Harness tab. In-app mode restores the same window and web session.
 - **Remember my choice.** Browser or in-app mode can be saved as the default and changed from the menu at any time.
 - **Service-aware actions.** Page and plugin-asset health checks, stale-loader recovery, port-conflict protection, and ownership records keep startup reliable without stopping unrelated processes.
+- **Existing environment first.** A working user-installed DSH at or above the tested baseline is reused as-is. If only DSH is missing, an existing Node.js 20+ and npm are reused; private Node.js is downloaded only when required.
+- **Works on a clean Mac.** When no compatible environment exists, the app can set up a private, per-user Node.js and DSH runtime without administrator access.
+- **Updates stay under your control.** The Service menu can check the official npm `latest` version and install it only after confirmation. There are no silent background DSH updates.
 - **Quiet login startup.** The macOS Login Items helper starts the menu bar controller without opening a page.
 - **Native localization and appearance.** English and Simplified Chinese are included; native UI follows the Mac's Light/Dark appearance automatically.
 - **Universal Mac build.** One package supports Apple silicon and Intel Macs.
@@ -79,38 +82,44 @@ The native WebKit window keeps one local session. Closing the window does not qu
 | --- | --- |
 | macOS | 13 Ventura or later |
 | Mac | Apple silicon or Intel |
-| Network | Required during first installation for Node.js and DSH |
+| Network | Required only when compatible local components are missing or for a confirmed update |
 | Local endpoint | `http://127.0.0.1:3080` |
-| Bundled runtime target | Node.js `22.21.1` |
-| Installed DSH package | `@deepseek-ai/dsh@0.1.1-rc.2` |
+| Reusable Node.js | Version 20 or later |
+| Private fallback Node.js | `22.21.1` |
+| Reusable DSH | Working version `0.1.1-rc.2` or later |
+| Tested clean-install DSH | `@deepseek-ai/dsh@0.1.1-rc.2` |
 
 ## Install
 
-1. Download the latest ZIP from [GitHub Releases](https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest).
-2. Extract the complete folder. Keep `install.command` beside `DeepSeek Harness.app`.
-3. Control-click `install.command`, choose **Open**, then confirm **Open**. Follow the Terminal progress.
-4. The installer places a new copy in `~/Applications`, adds it to the Dock, and opens the shared Dock/menu bar controller. An existing installation is upgraded in place.
+1. Download the latest DMG from [GitHub Releases](https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest).
+2. Open the DMG and drag **DeepSeek Harness** onto **Applications**.
+3. Control-click the installed app, choose **Open**, then confirm **Open**.
+4. The first normal launch adds the app to the Dock and starts the shared Dock/menu bar controller. To upgrade, replace the existing app in Applications; preferences and Harness data remain in place.
 
-The installer verifies the app, downloads Node.js from `nodejs.org`, validates its published SHA-256 checksum, and installs the pinned DSH package from npm. It never asks for administrator access for a normal per-user installation.
+The app first discovers and runs compatible existing DSH/Node installations, including common Homebrew, npm, nvm, fnm, Volta, asdf, mise, nodenv, MacPorts, bun, and pnpm locations. It records the selected absolute paths so a later Finder, Dock, or login launch does not depend on an interactive shell's `PATH`. It never modifies an external DSH or Node installation.
+
+If DSH is missing, broken, or older than the tested baseline, the app installs only an isolated DSH copy. It reuses a working Node.js 20+ with npm; only a missing, broken, or older Node causes the verified private Node.js 22.21.1 download. Profiles, sessions, plugins, and credentials under `~/.dsh` are never replaced. A clean setup can take several minutes because DSH has a large dependency tree; keep the app open until completion. During that install, the app selects a 3–8 GB Node.js heap limit from the Mac's physical memory instead of relying on npm's smaller default.
+
+The tested default is intentionally exact so every fresh install starts from the same top-level DSH version validated against this controller and its plugin-loading behavior. It is a compatibility baseline, not a permanent lock: choose **Service → Check for DSH Updates…** to compare against npm `latest`, review the version change, and update explicitly. A failed install keeps the previously working managed runtime.
 
 ### Gatekeeper notice for 1.0.0
 
-Version 1.0.0 is ad-hoc signed and is not Apple-notarized. macOS may therefore show an unidentified-developer warning. Use the Control-click **Open** flow above, or go to **System Settings → Privacy & Security → Open Anyway** after macOS blocks the first attempt.
+Version 1.0.0 is ad-hoc signed and is not Apple-notarized. macOS may therefore show an unidentified-developer warning. Control-click the app in Applications and choose **Open**, or go to **System Settings → Privacy & Security → Open Anyway** after macOS blocks the first attempt.
 
 Do not disable Gatekeeper globally. A future release requires an Apple Developer ID and notarization to remove this first-run warning.
 
 ### Verify the download
 
-Download the `.sha256` file beside the ZIP, keep both files in the same directory, then run:
+Download the optional `.sha256` file beside the DMG, keep both files in the same directory, then run:
 
 ```sh
-shasum -a 256 -c DeepSeek-Harness-1.0.0-macOS.zip.sha256
+shasum -a 256 -c DeepSeek-Harness-1.0.0-macOS.dmg.sha256
 ```
 
 ## Everyday use
 
 - Click the **Dock icon** to use your saved opening method.
-- Click the **menu bar whale** to open Harness, use the alternate method once, change the default, inspect service status, restart/stop the service, copy diagnostics, or configure login startup.
+- Click the **menu bar whale** to open Harness, use the alternate method once, change the default, inspect service status, check for DSH updates, restart/stop the service, copy diagnostics, or configure login startup.
 - In **browser mode**, an existing supported local tab is focused; a tab is created only if none can be verified.
 - In **in-app mode**, closing the window hides it. The menu bar whale and Harness service stay available.
 - Choosing **Quit DeepSeek Harness** exits the controller. Service actions remain explicit and separate.
@@ -121,8 +130,8 @@ See [Usage](docs/usage.md), [Installation](docs/installation.md), and [Troublesh
 
 ## Privacy and safety
 
-- No analytics, telemetry, advertising, or update tracker is included.
-- The controller communicates with the local Harness endpoint and the installer downloads only its declared runtime dependencies.
+- No analytics, telemetry, advertising, or background update tracker is included.
+- The controller communicates with the local Harness endpoint. It contacts the official npm registry only when a missing DSH component must be installed or you explicitly choose **Check for DSH Updates…**; `nodejs.org` is contacted only when a private Node fallback is required.
 - Diagnostics copied from the menu contain operational information. Review them before posting publicly.
 - Harness authentication remains inside the local Harness page. Never paste credentials into a public Issue.
 
@@ -136,7 +145,7 @@ cd deepseek-harness-macos
 ./scripts/build-release.command
 ```
 
-The universal, ad-hoc-signed release and checksum are written to `dist/`. The build validates plists, signatures, architectures, and ZIP integrity. See [Architecture](docs/architecture.md), [Maintenance](docs/maintenance.md), and [Release process](docs/release-process.md).
+The universal, ad-hoc-signed DMG and checksum are written to `dist/`. The build validates plists, signatures, architectures, and disk-image integrity. See [Architecture](docs/architecture.md), [Maintenance](docs/maintenance.md), and [Release process](docs/release-process.md).
 
 ## Contributing and support
 

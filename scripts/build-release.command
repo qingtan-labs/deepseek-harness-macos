@@ -12,8 +12,8 @@ readonly RELEASE_NAME='DeepSeek-Harness-1.0.0-macOS'
 readonly APP_DIR="$WORK_DIR/$APP_NAME"
 readonly LOGIN_HELPER_DIR="$APP_DIR/Contents/Library/LoginItems/DeepSeek Harness Login Helper.app"
 readonly ICONSET_DIR="$WORK_DIR/DeepSeekHarness.iconset"
-readonly RELEASE_DIR="$WORK_DIR/$RELEASE_NAME"
-readonly ZIP_PATH="$OUTPUT_DIR/$RELEASE_NAME.zip"
+readonly DMG_DIR="$WORK_DIR/dmg"
+readonly DMG_PATH="$OUTPUT_DIR/$RELEASE_NAME.dmg"
 
 /bin/rm -rf "$WORK_DIR"
 /bin/mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources/en.lproj" \
@@ -38,6 +38,8 @@ for spec in '16 icon_16x16.png' '32 icon_16x16@2x.png' '32 icon_32x32.png' '64 i
 done
 "$WORK_DIR/build-icns" "$ICONSET_DIR" "$APP_DIR/Contents/Resources/DeepSeekHarness.icns"
 /bin/cp "$ROOT_DIR/assets/DeepSeekWhale.svg" "$APP_DIR/Contents/Resources/DeepSeekWhale.svg"
+/bin/cp "$ROOT_DIR/scripts/install-runtime.command" "$APP_DIR/Contents/Resources/InstallRuntime.command"
+/bin/chmod 755 "$APP_DIR/Contents/Resources/InstallRuntime.command"
 /bin/cp "$ROOT_DIR/resources/en.lproj/Localizable.strings" "$ROOT_DIR/resources/en.lproj/InfoPlist.strings" "$APP_DIR/Contents/Resources/en.lproj/"
 /bin/cp "$ROOT_DIR/resources/zh-Hans.lproj/Localizable.strings" "$ROOT_DIR/resources/zh-Hans.lproj/InfoPlist.strings" "$APP_DIR/Contents/Resources/zh-Hans.lproj/"
 /bin/cp "$ROOT_DIR/src/DeepSeekHarness-Info.plist" "$APP_DIR/Contents/Info.plist"
@@ -50,17 +52,16 @@ done
 /usr/bin/lipo -archs "$APP_DIR/Contents/MacOS/DeepSeekHarness" | /usr/bin/grep -Eq 'arm64.*x86_64|x86_64.*arm64'
 /usr/bin/lipo -archs "$LOGIN_HELPER_DIR/Contents/MacOS/DeepSeekHarnessLoginHelper" | /usr/bin/grep -Eq 'arm64.*x86_64|x86_64.*arm64'
 
-/bin/mkdir -p "$RELEASE_DIR"
-/usr/bin/ditto "$APP_DIR" "$RELEASE_DIR/$APP_NAME"
-/bin/cp "$ROOT_DIR/scripts/install.command" "$RELEASE_DIR/install.command"
-/bin/chmod 755 "$RELEASE_DIR/install.command"
-/bin/cp "$ROOT_DIR/README.md" "$ROOT_DIR/README.zh-Hans.md" "$ROOT_DIR/RELEASE-NOTES.md" \
-  "$ROOT_DIR/RELEASE-NOTES.zh-Hans.md" "$ROOT_DIR/manifest.json" "$RELEASE_DIR/"
-/bin/rm -f "$ZIP_PATH" "$ZIP_PATH.sha256"
-/usr/bin/ditto -c -k --sequesterRsrc --keepParent "$RELEASE_DIR" "$ZIP_PATH"
-(cd "$OUTPUT_DIR" && /usr/bin/shasum -a 256 "$RELEASE_NAME.zip" > "$RELEASE_NAME.zip.sha256")
-/usr/bin/unzip -t "$ZIP_PATH" >/dev/null
-/bin/rm -rf "$RELEASE_DIR" "$APP_DIR" "$ICONSET_DIR"
+/bin/mkdir -p "$DMG_DIR"
+/usr/bin/ditto "$APP_DIR" "$DMG_DIR/$APP_NAME"
+/bin/ln -s /Applications "$DMG_DIR/Applications"
+/bin/rm -f "$OUTPUT_DIR/$RELEASE_NAME.zip" "$OUTPUT_DIR/$RELEASE_NAME.zip.sha256" \
+  "$DMG_PATH" "$DMG_PATH.sha256"
+/usr/bin/hdiutil create -quiet -volname 'DeepSeek Harness' -srcfolder "$DMG_DIR" -ov -format UDZO "$DMG_PATH"
+(cd "$OUTPUT_DIR" && /usr/bin/shasum -a 256 "$RELEASE_NAME.dmg" > "$RELEASE_NAME.dmg.sha256")
+/usr/bin/hdiutil verify "$DMG_PATH" >/dev/null
+/bin/cp "$ROOT_DIR/RELEASE-NOTES.md" "$OUTPUT_DIR/release-body-v1.0.0.md"
+/bin/rm -rf "$DMG_DIR" "$APP_DIR" "$ICONSET_DIR"
 
-print -r -- "Built: $ZIP_PATH"
-print -r -- "SHA-256: $ZIP_PATH.sha256"
+print -r -- "Built: $DMG_PATH"
+print -r -- "SHA-256: $DMG_PATH.sha256"

@@ -2,7 +2,7 @@
 
 ## macOS says the app or installer cannot be opened
 
-Version 1.0.0 is not Apple-notarized. Control-click `install.command`, choose **Open**, and confirm. If already blocked, use **System Settings → Privacy & Security → Open Anyway**. Download only from this repository's Releases page and verify the checksum.
+Version 1.0.0 is not Apple-notarized. After dragging the app from the DMG to Applications, Control-click the installed app, choose **Open**, and confirm. If already blocked, use **System Settings → Privacy & Security → Open Anyway**. Download only from this repository's Releases page and verify the checksum.
 
 ## A new browser tab is still created
 
@@ -41,3 +41,17 @@ lsof -nP -iTCP:3080 -sTCP:LISTEN
 - Include sanitized diagnostics and relevant log lines in a Bug report.
 
 Do not post credentials, cookies, login codes, or complete private paths.
+
+## DSH is not installed
+
+Open Harness from the Dock or menu. The controller first checks whether a compatible DSH already exists and reuses it without modification. If only DSH is missing, it reuses working Node.js 20+ and npm. It downloads private Node.js only when no compatible Node/npm pair exists, all without `sudo`. Keep the Mac online only when a component must be downloaded, and leave the controller running until it reports completion.
+
+If the setup fails, choose **Show Log** in the error dialog or reveal the runtime log at `~/Library/Logs/DeepSeek Harness/runtime-install.log`. Retrying is safe: installation is staged and the previous managed runtime is kept unless the replacement verifies successfully.
+
+If the dialog specifically reports that Node.js ran out of memory, close memory-intensive apps and retry. The current installer automatically raises the install heap limit from 3 GB up to 8 GB according to physical memory. Logs showing a heap ceiling near 2 GB came from an older package; download the current DMG before retrying.
+
+If a command works in Terminal but not from the Dock, rerun the one-click runtime setup. It records absolute DSH and Node paths in `~/Library/Application Support/DeepSeek Harness/environment.plist`; the app also searches common nvm, fnm, Volta, asdf, mise, nodenv, Homebrew, MacPorts, bun, and pnpm paths without sourcing shell startup files.
+
+## A DSH update is available
+
+Choose **Service → Check for DSH Updates…**. The controller compares the installed version with npm's official `latest` metadata and displays both versions. An update runs only after confirmation and can restart a running Harness service. Developer-preview DSH releases can change plugin or profile behavior, so keep the tested default unless you need a newer upstream fix.

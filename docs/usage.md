@@ -6,9 +6,9 @@
 
 These images use demonstration content and focus on the macOS controller's own interactions.
 
-![Menu bar controller](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.svg?v=2)
+![Menu bar controller](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.svg?v=3)
 
-The controller menu surfaces external-service status, Open/Focus, a one-time alternate window, the saved opening method, service controls, silent login startup, the user guide, version information, and a controller-only quit that leaves an externally started service running.
+The controller menu surfaces external-service status, Open/Focus, a one-time alternate window, the saved opening method, service controls, an explicit DSH update check, silent login startup, the user guide, version information, and a controller-only quit that leaves an externally started service running.
 
 ![Existing browser tab reuse](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/browser-reuse.svg?v=3)
 
@@ -35,9 +35,12 @@ The status reflects both a process listening on port 3080 and a successful HTTP 
 
 - **Refresh** rechecks health.
 - **Restart** or **Stop** acts directly only on a controller-owned service.
+- **Check for DSH Updates…** reads npm's official `latest` metadata only when selected. It shows the current, available, and controller-tested versions, then updates only after confirmation.
 - Externally started Harness services require confirmation.
 - An unrelated process using port 3080 is never treated as Harness and is not terminated.
 - **Copy diagnostics** provides version, state, mode, browser, address, and log location for troubleshooting.
+
+If no compatible DSH can run, the next Open action offers one-click environment selection and repair. It first reuses an existing compatible DSH, then reuses Node.js 20+ with npm when only DSH is missing, and downloads a private Node.js runtime only as the final fallback. Updating or installing a runtime stops and restarts a controller-owned Harness service as needed. External runtimes are never overwritten; a failed managed-runtime transaction preserves the previous working managed copy.
 
 ## Login startup
 

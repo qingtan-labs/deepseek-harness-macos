@@ -9,6 +9,7 @@
 typedef NS_ENUM(NSInteger, DSHServiceState) {
     DSHServiceStateUnknown,
     DSHServiceStateStopped,
+    DSHServiceStateInstalling,
     DSHServiceStateStarting,
     DSHServiceStateRunning,
     DSHServiceStateRunningExternal,
@@ -42,7 +43,7 @@ typedef NS_ENUM(NSInteger, DSHPreferredPresentation) {
 @implementation DSHListenerInfo
 @end
 
-@interface DeepSeekHarnessApp : NSObject <NSApplicationDelegate, NSWindowDelegate, WKNavigationDelegate, WKUIDelegate>
+@interface DeepSeekHarnessApp : NSObject <NSApplicationDelegate, NSWindowDelegate, NSMenuDelegate, WKNavigationDelegate, WKUIDelegate>
 @property(nonatomic, strong) NSStatusItem *statusItem;
 @property(nonatomic, strong) NSMenuItem *statusMenuItem;
 @property(nonatomic, strong) NSMenuItem *openMenuItem;
@@ -54,12 +55,15 @@ typedef NS_ENUM(NSInteger, DSHPreferredPresentation) {
 @property(nonatomic, strong) NSMenuItem *serviceSubStatusItem;
 @property(nonatomic, strong) NSMenuItem *restartMenuItem;
 @property(nonatomic, strong) NSMenuItem *stopMenuItem;
+@property(nonatomic, strong) NSMenuItem *updateMenuItem;
 @property(nonatomic, strong) NSMenuItem *addressCopyMenuItem;
 @property(nonatomic, strong) NSMenuItem *diagnosticsCopyMenuItem;
 @property(nonatomic, strong) NSMenuItem *loginItem;
 @property(nonatomic, strong) NSTimer *statusTimer;
 @property(nonatomic, strong) NSTask *serviceTask;
 @property(nonatomic, strong) NSFileHandle *logHandle;
+@property(nonatomic, strong) NSTask *runtimeInstallTask;
+@property(nonatomic, strong) NSFileHandle *runtimeInstallLogHandle;
 @property(nonatomic, strong) dispatch_queue_t inspectionQueue;
 @property(nonatomic, strong) dispatch_queue_t browserQueue;
 @property(nonatomic, strong) NSWindow *webWindow;
@@ -78,11 +82,16 @@ typedef NS_ENUM(NSInteger, DSHPreferredPresentation) {
 @property(nonatomic, assign) BOOL webViewLoadFailed;
 @property(nonatomic, assign) DSHPreferredPresentation pendingPresentation;
 @property(nonatomic, assign) BOOL launchedInBackground;
+@property(nonatomic, copy) NSString *pendingRuntimeVersion;
+@property(nonatomic, assign) BOOL pendingRuntimeStartAfterInstall;
+@property(nonatomic, assign) BOOL pendingRuntimePresentAfterReady;
+@property(nonatomic, assign) BOOL pendingRuntimeReuseCompatibleEnvironment;
 @end
 
 static DeepSeekHarnessApp *appDelegate;
 static BOOL DSHBackgroundLaunch = NO;
 static NSString * const DSHWebAddress = @"http://127.0.0.1:3080";
+static NSString * const DSHLatestMetadataAddress = @"https://registry.npmjs.org/%40deepseek-ai%2Fdsh/latest";
 static NSString * const DSHPreferredPresentationKey = @"PreferredPresentation";
 static NSString * const DSHOnboardingKey = @"DidCompleteOnboardingV4";
 static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness.login-helper";
@@ -97,8 +106,21 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     return [[self homePath] stringByAppendingPathComponent:@"Library/Logs/DeepSeek Harness/web.log"];
 }
 
+- (NSString *)runtimeInstallLogPath {
+    return [[self homePath] stringByAppendingPathComponent:@"Library/Logs/DeepSeek Harness/runtime-install.log"];
+}
+
 - (NSString *)supportPath {
     return [[self homePath] stringByAppendingPathComponent:@"Library/Application Support/DeepSeek Harness"];
+}
+
+- (NSString *)environmentRecordPath {
+    return [[self supportPath] stringByAppendingPathComponent:@"environment.plist"];
+}
+
+- (NSDictionary *)environmentRecord {
+    NSDictionary *record = [NSDictionary dictionaryWithContentsOfFile:[self environmentRecordPath]];
+    return [record isKindOfClass:NSDictionary.class] ? record : @{};
 }
 
 - (NSString *)ownershipRecordPath {
@@ -109,14 +131,112 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     return [[self supportPath] stringByAppendingPathComponent:@"runtime/current/bin"];
 }
 
+- (NSString *)runtimeInstallerPath {
+    return [NSBundle.mainBundle pathForResource:@"InstallRuntime" ofType:@"command"];
+}
+
+- (NSString *)recommendedDSHVersion {
+    return NSBundle.mainBundle.infoDictionary[@"DSHRecommendedVersion"] ?: @"0.1.1-rc.2";
+}
+
+- (void)addExecutablePath:(NSString *)path toCandidates:(NSMutableArray<NSString *> *)candidates {
+    if (path.length == 0 || [candidates containsObject:path]) return;
+    if ([NSFileManager.defaultManager isExecutableFileAtPath:path]) [candidates addObject:path];
+}
+
+- (void)addVersionedExecutablesUnder:(NSString *)root
+                            relative:(NSString *)relative
+                        toCandidates:(NSMutableArray<NSString *> *)candidates {
+    NSArray<NSString *> *versions = [NSFileManager.defaultManager contentsOfDirectoryAtPath:root error:nil];
+    versions = [versions sortedArrayUsingComparator:^NSComparisonResult(NSString *left, NSString *right) {
+        return [right compare:left options:NSNumericSearch];
+    }];
+    for (NSString *version in versions) {
+        NSString *path = [[[root stringByAppendingPathComponent:version] stringByAppendingPathComponent:relative]
+            stringByStandardizingPath];
+        [self addExecutablePath:path toCandidates:candidates];
+    }
+}
+
+- (void)addExecutableNamed:(NSString *)name fromProcessPathToCandidates:(NSMutableArray<NSString *> *)candidates {
+    NSString *pathValue = NSProcessInfo.processInfo.environment[@"PATH"] ?: @"";
+    for (NSString *directory in [pathValue componentsSeparatedByString:@":"]) {
+        if (directory.length > 0) [self addExecutablePath:[directory stringByAppendingPathComponent:name] toCandidates:candidates];
+    }
+}
+
 - (NSArray<NSString *> *)dshCandidates {
     NSString *home = [self homePath];
-    return @[
-        [[self supportPath] stringByAppendingPathComponent:@"npm/node_modules/.bin/dsh"],
+    NSMutableArray<NSString *> *candidates = [NSMutableArray array];
+    [self addExecutablePath:[self environmentRecord][@"dshPath"] toCandidates:candidates];
+    [self addExecutableNamed:@"dsh" fromProcessPathToCandidates:candidates];
+    for (NSString *path in @[
         [home stringByAppendingPathComponent:@".local/bin/dsh"],
-        @"/opt/homebrew/bin/dsh",
-        @"/usr/local/bin/dsh"
-    ];
+        [home stringByAppendingPathComponent:@".volta/bin/dsh"],
+        [home stringByAppendingPathComponent:@".asdf/shims/dsh"],
+        [home stringByAppendingPathComponent:@".mise/shims/dsh"],
+        [home stringByAppendingPathComponent:@".bun/bin/dsh"],
+        [home stringByAppendingPathComponent:@"Library/pnpm/dsh"],
+        @"/opt/homebrew/bin/dsh", @"/usr/local/bin/dsh", @"/opt/local/bin/dsh"
+    ]) [self addExecutablePath:path toCandidates:candidates];
+    [self addVersionedExecutablesUnder:[home stringByAppendingPathComponent:@".nvm/versions/node"]
+                              relative:@"bin/dsh" toCandidates:candidates];
+    [self addVersionedExecutablesUnder:[home stringByAppendingPathComponent:@".fnm/node-versions"]
+                              relative:@"installation/bin/dsh" toCandidates:candidates];
+    [self addVersionedExecutablesUnder:[home stringByAppendingPathComponent:@"Library/Application Support/fnm/node-versions"]
+                              relative:@"installation/bin/dsh" toCandidates:candidates];
+    [self addVersionedExecutablesUnder:[home stringByAppendingPathComponent:@".nodenv/versions"]
+                              relative:@"bin/dsh" toCandidates:candidates];
+    [self addExecutablePath:[[self supportPath] stringByAppendingPathComponent:@"npm/node_modules/.bin/dsh"]
+              toCandidates:candidates];
+    return candidates;
+}
+
+- (NSArray<NSString *> *)nodeCandidatesForDSHPath:(NSString *)dshPath {
+    NSString *home = [self homePath];
+    NSMutableArray<NSString *> *candidates = [NSMutableArray array];
+    [self addExecutablePath:[self environmentRecord][@"nodePath"] toCandidates:candidates];
+    [self addExecutablePath:[[dshPath stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"node"]
+              toCandidates:candidates];
+    [self addExecutableNamed:@"node" fromProcessPathToCandidates:candidates];
+    for (NSString *path in @[
+        [home stringByAppendingPathComponent:@".local/bin/node"],
+        [home stringByAppendingPathComponent:@".volta/bin/node"],
+        [home stringByAppendingPathComponent:@".asdf/shims/node"],
+        [home stringByAppendingPathComponent:@".mise/shims/node"],
+        @"/opt/homebrew/bin/node", @"/usr/local/bin/node", @"/opt/local/bin/node"
+    ]) [self addExecutablePath:path toCandidates:candidates];
+    [self addVersionedExecutablesUnder:[home stringByAppendingPathComponent:@".nvm/versions/node"]
+                              relative:@"bin/node" toCandidates:candidates];
+    [self addVersionedExecutablesUnder:[home stringByAppendingPathComponent:@".fnm/node-versions"]
+                              relative:@"installation/bin/node" toCandidates:candidates];
+    [self addVersionedExecutablesUnder:[home stringByAppendingPathComponent:@"Library/Application Support/fnm/node-versions"]
+                              relative:@"installation/bin/node" toCandidates:candidates];
+    [self addVersionedExecutablesUnder:[home stringByAppendingPathComponent:@".nodenv/versions"]
+                              relative:@"bin/node" toCandidates:candidates];
+    [self addExecutablePath:[[self privateRuntimeBinPath] stringByAppendingPathComponent:@"node"]
+              toCandidates:candidates];
+    return candidates;
+}
+
+- (NSDictionary<NSString *, NSString *> *)environmentForDSHPath:(NSString *)dshPath {
+    NSMutableDictionary<NSString *, NSString *> *environment = NSProcessInfo.processInfo.environment.mutableCopy;
+    NSMutableArray<NSString *> *pathEntries = [NSMutableArray array];
+    for (NSString *nodePath in [self nodeCandidatesForDSHPath:dshPath]) {
+        NSString *directory = nodePath.stringByDeletingLastPathComponent;
+        if (![pathEntries containsObject:directory]) [pathEntries addObject:directory];
+    }
+    NSString *dshDirectory = dshPath.stringByDeletingLastPathComponent;
+    if (dshDirectory.length > 0 && ![pathEntries containsObject:dshDirectory]) [pathEntries addObject:dshDirectory];
+    NSString *existingPath = environment[@"PATH"] ?: @"/usr/bin:/bin:/usr/sbin:/sbin";
+    for (NSString *directory in [existingPath componentsSeparatedByString:@":"]) {
+        if (directory.length > 0 && ![pathEntries containsObject:directory]) [pathEntries addObject:directory];
+    }
+    for (NSString *directory in @[ @"/usr/bin", @"/bin", @"/usr/sbin", @"/sbin" ]) {
+        if (![pathEntries containsObject:directory]) [pathEntries addObject:directory];
+    }
+    environment[@"PATH"] = [pathEntries componentsJoinedByString:@":"];
+    return environment;
 }
 
 - (NSString *)dshPath {
@@ -132,6 +252,7 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     self.inspectionQueue = dispatch_queue_create("com.yestar.deepseek-harness.inspection", DISPATCH_QUEUE_SERIAL);
     self.browserQueue = dispatch_queue_create("com.yestar.deepseek-harness.browser", DISPATCH_QUEUE_SERIAL);
     [self migrateLegacyLoginItem];
+    if (!self.launchedInBackground) [self ensureDockShortcutIfInstalled];
     self.serviceState = DSHServiceStateUnknown;
     [self buildStatusMenu];
     [self applyServiceState];
@@ -146,6 +267,31 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.15 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self completeOnboardingIfNeededAndOpen];
         });
+    }
+}
+
+- (void)ensureDockShortcutIfInstalled {
+    NSString *appPath = NSBundle.mainBundle.bundlePath.stringByStandardizingPath;
+    NSString *userApplications = [[[self homePath] stringByAppendingPathComponent:@"Applications"] stringByStandardizingPath];
+    BOOL installed = [appPath hasPrefix:@"/Applications/"] || [appPath hasPrefix:[userApplications stringByAppendingString:@"/"]];
+    if (!installed) return;
+
+    NSUserDefaults *dockDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"com.apple.dock"];
+    NSArray *persistentApps = [dockDefaults arrayForKey:@"persistent-apps"] ?: @[];
+    for (NSDictionary *item in persistentApps) {
+        NSString *label = [item[@"tile-data"] isKindOfClass:NSDictionary.class] ? item[@"tile-data"][@"file-label"] : nil;
+        if ([label isEqualToString:@"DeepSeek Harness"]) return;
+    }
+    NSDictionary *tile = @{
+        @"tile-data": @{
+            @"file-data": @{ @"_CFURLString": appPath, @"_CFURLStringType": @0 },
+            @"file-label": @"DeepSeek Harness"
+        },
+        @"tile-type": @"file-tile"
+    };
+    [dockDefaults setObject:[persistentApps arrayByAddingObject:tile] forKey:@"persistent-apps"];
+    if ([dockDefaults synchronize]) {
+        [self runExecutable:@"/usr/bin/killall" arguments:@[ @"Dock" ] timeout:2.0];
     }
 }
 
@@ -169,6 +315,7 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     self.statusItem.button.accessibilityRoleDescription = L(@"菜单栏控制");
 
     NSMenu *menu = [[NSMenu alloc] initWithTitle:@"DeepSeek Harness"];
+    menu.delegate = self;
     self.statusMenuItem = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
     self.statusMenuItem.enabled = NO;
     [menu addItem:NSMenuItem.separatorItem];
@@ -199,6 +346,8 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     self.stopMenuItem = [serviceMenu addItemWithTitle:L(@"停止服务") action:@selector(stopService:) keyEquivalent:@""];
     self.stopMenuItem.target = self;
     [serviceMenu addItemWithTitle:L(@"立即刷新状态") action:@selector(forceRefreshService:) keyEquivalent:@""].target = self;
+    self.updateMenuItem = [serviceMenu addItemWithTitle:L(@"检查 DSH 更新…") action:@selector(checkForDSHUpdates:) keyEquivalent:@""];
+    self.updateMenuItem.target = self;
     [serviceMenu addItem:NSMenuItem.separatorItem];
     self.addressCopyMenuItem = [serviceMenu addItemWithTitle:L(@"复制本地地址") action:@selector(copyLocalAddress:) keyEquivalent:@""];
     self.addressCopyMenuItem.target = self;
@@ -266,6 +415,7 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
 - (NSString *)stateTitle {
     switch (self.serviceState) {
         case DSHServiceStateStopped: return L(@"服务未启动");
+        case DSHServiceStateInstalling: return L(@"正在安装运行环境…");
         case DSHServiceStateStarting: return L(@"正在启动服务…");
         case DSHServiceStateRunning: return L(@"服务正在运行");
         case DSHServiceStateRunningExternal: return L(@"服务正在运行（外部启动）");
@@ -282,17 +432,23 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
         case DSHServiceStateRunning:
         case DSHServiceStateRunningExternal: return NSColor.systemGreenColor;
         case DSHServiceStateStarting:
+        case DSHServiceStateInstalling:
         case DSHServiceStateStopping:
         case DSHServiceStateUnknown: return NSColor.systemOrangeColor;
         case DSHServiceStateUnhealthy:
         case DSHServiceStateBlocked:
         case DSHServiceStateFailed: return NSColor.systemRedColor;
-        case DSHServiceStateStopped: return NSColor.secondaryLabelColor;
+        case DSHServiceStateStopped: return NSColor.systemGrayColor;
     }
 }
 
+- (NSString *)stateIndicatorSymbol {
+    return self.serviceState == DSHServiceStateStopped ? @"○" : @"●";
+}
+
 - (BOOL)isBusy {
-    return self.serviceState == DSHServiceStateStarting || self.serviceState == DSHServiceStateStopping;
+    return self.serviceState == DSHServiceStateInstalling ||
+        self.serviceState == DSHServiceStateStarting || self.serviceState == DSHServiceStateStopping;
 }
 
 - (BOOL)isRunningState {
@@ -306,7 +462,7 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     NSString *accessibility = [NSString stringWithFormat:@"DeepSeek Harness: %@", title];
     self.statusItem.button.toolTip = accessibility;
     self.statusItem.button.accessibilityLabel = accessibility;
-    self.statusItem.button.attributedTitle = [[NSAttributedString alloc] initWithString:@"●"
+    self.statusItem.button.attributedTitle = [[NSAttributedString alloc] initWithString:[self stateIndicatorSymbol]
         attributes:@{ NSForegroundColorAttributeName: [self stateColor], NSFontAttributeName: [NSFont systemFontOfSize:9 weight:NSFontWeightBold] }];
 
     BOOL busy = [self isBusy] || self.refreshInFlight || self.openRequestInFlight || self.browserProbeInFlight || self.serviceActionInFlight;
@@ -317,6 +473,7 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     self.alternateOpenMenuItem.enabled = !busy && !blocked;
     self.restartMenuItem.enabled = !busy && (running || self.serviceState == DSHServiceStateUnhealthy);
     self.stopMenuItem.enabled = !busy && (running || self.serviceState == DSHServiceStateUnhealthy);
+    self.updateMenuItem.enabled = !busy && !blocked;
 
     BOOL browser = [self preferredPresentation] == DSHPreferredPresentationBrowser;
     self.presentationMenuItem.title = browser ? L(@"打开方式：默认浏览器") : L(@"打开方式：应用内窗口");
@@ -327,11 +484,19 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     [self updateWindowConnectionUI];
 }
 
-- (NSString *)runExecutable:(NSString *)executable arguments:(NSArray<NSString *> *)arguments timeout:(NSTimeInterval)timeout {
+- (void)menuWillOpen:(NSMenu *)menu {
+    [self refreshServiceState:nil];
+}
+
+- (NSString *)runExecutable:(NSString *)executable
+                  arguments:(NSArray<NSString *> *)arguments
+                environment:(NSDictionary<NSString *, NSString *> *)environment
+                    timeout:(NSTimeInterval)timeout {
     NSTask *task = [[NSTask alloc] init];
     NSPipe *pipe = NSPipe.pipe;
     task.launchPath = executable;
     task.arguments = arguments;
+    if (environment != nil) task.environment = environment;
     task.standardOutput = pipe;
     task.standardError = pipe;
     @try {
@@ -358,6 +523,10 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     [task waitUntilExit];
     dispatch_group_wait(readerGroup, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)));
     return data ? ([[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] ?: @"") : @"";
+}
+
+- (NSString *)runExecutable:(NSString *)executable arguments:(NSArray<NSString *> *)arguments timeout:(NSTimeInterval)timeout {
+    return [self runExecutable:executable arguments:arguments environment:nil timeout:timeout];
 }
 
 - (BOOL)ownershipRecordMatchesPID:(pid_t)pid {
@@ -521,7 +690,10 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
 }
 
 - (void)setStateFromListener:(DSHListenerInfo *)info healthy:(BOOL)healthy {
-    if (info.pid <= 0) self.serviceState = DSHServiceStateStopped;
+    if (info.pid <= 0) {
+        [self removeOwnershipRecord];
+        self.serviceState = DSHServiceStateStopped;
+    }
     else if (!info.isHarness) self.serviceState = DSHServiceStateBlocked;
     else if (!healthy) self.serviceState = DSHServiceStateUnhealthy;
     else self.serviceState = info.ownedByController ? DSHServiceStateRunning : DSHServiceStateRunningExternal;
@@ -548,6 +720,318 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
         [self setStateFromListener:info healthy:healthy];
         [self applyServiceState];
     }];
+}
+
+- (NSComparisonResult)compareSemanticVersion:(NSString *)left toVersion:(NSString *)right {
+    NSString *(^normalized)(NSString *) = ^NSString *(NSString *value) {
+        NSString *result = [[value componentsSeparatedByString:@"+"] firstObject] ?: @"";
+        return [result hasPrefix:@"v"] ? [result substringFromIndex:1] : result;
+    };
+    NSString *leftValue = normalized(left);
+    NSString *rightValue = normalized(right);
+    NSRange leftDash = [leftValue rangeOfString:@"-"];
+    NSRange rightDash = [rightValue rangeOfString:@"-"];
+    NSString *leftCore = leftDash.location == NSNotFound ? leftValue : [leftValue substringToIndex:leftDash.location];
+    NSString *rightCore = rightDash.location == NSNotFound ? rightValue : [rightValue substringToIndex:rightDash.location];
+    NSArray<NSString *> *leftCoreParts = [leftCore componentsSeparatedByString:@"."];
+    NSArray<NSString *> *rightCoreParts = [rightCore componentsSeparatedByString:@"."];
+    NSUInteger coreCount = MAX(leftCoreParts.count, rightCoreParts.count);
+    for (NSUInteger index = 0; index < coreCount; index++) {
+        NSInteger leftNumber = index < leftCoreParts.count ? leftCoreParts[index].integerValue : 0;
+        NSInteger rightNumber = index < rightCoreParts.count ? rightCoreParts[index].integerValue : 0;
+        if (leftNumber < rightNumber) return NSOrderedAscending;
+        if (leftNumber > rightNumber) return NSOrderedDescending;
+    }
+
+    NSString *leftPre = leftDash.location == NSNotFound ? nil : [leftValue substringFromIndex:NSMaxRange(leftDash)];
+    NSString *rightPre = rightDash.location == NSNotFound ? nil : [rightValue substringFromIndex:NSMaxRange(rightDash)];
+    if (leftPre.length == 0 && rightPre.length == 0) return NSOrderedSame;
+    if (leftPre.length == 0) return NSOrderedDescending;
+    if (rightPre.length == 0) return NSOrderedAscending;
+
+    NSArray<NSString *> *leftParts = [leftPre componentsSeparatedByString:@"."];
+    NSArray<NSString *> *rightParts = [rightPre componentsSeparatedByString:@"."];
+    NSUInteger partCount = MAX(leftParts.count, rightParts.count);
+    NSCharacterSet *nonDigits = NSCharacterSet.decimalDigitCharacterSet.invertedSet;
+    for (NSUInteger index = 0; index < partCount; index++) {
+        if (index >= leftParts.count) return NSOrderedAscending;
+        if (index >= rightParts.count) return NSOrderedDescending;
+        NSString *leftPart = leftParts[index];
+        NSString *rightPart = rightParts[index];
+        BOOL leftNumeric = leftPart.length > 0 && [leftPart rangeOfCharacterFromSet:nonDigits].location == NSNotFound;
+        BOOL rightNumeric = rightPart.length > 0 && [rightPart rangeOfCharacterFromSet:nonDigits].location == NSNotFound;
+        if (leftNumeric && rightNumeric) {
+            NSInteger leftNumber = leftPart.integerValue;
+            NSInteger rightNumber = rightPart.integerValue;
+            if (leftNumber < rightNumber) return NSOrderedAscending;
+            if (leftNumber > rightNumber) return NSOrderedDescending;
+        } else if (leftNumeric != rightNumeric) {
+            return leftNumeric ? NSOrderedAscending : NSOrderedDescending;
+        } else {
+            NSComparisonResult result = [leftPart compare:rightPart options:NSLiteralSearch];
+            if (result != NSOrderedSame) return result;
+        }
+    }
+    return NSOrderedSame;
+}
+
+- (NSString *)installedDSHVersionAtPath:(NSString *)path {
+    NSString *output = [self runExecutable:path arguments:@[ @"--version" ]
+                               environment:[self environmentForDSHPath:path] timeout:5.0];
+    NSRegularExpression *pattern = [NSRegularExpression regularExpressionWithPattern:@"^v?[0-9]+\\.[0-9]+\\.[0-9]+(?:[+-][0-9A-Za-z.-]+)?$"
+                                                                              options:0 error:nil];
+    NSArray<NSString *> *lines = [output componentsSeparatedByCharactersInSet:NSCharacterSet.newlineCharacterSet];
+    for (NSString *line in lines.reverseObjectEnumerator) {
+        NSString *candidate = [line stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+        NSRange range = NSMakeRange(0, candidate.length);
+        if ([pattern firstMatchInString:candidate options:0 range:range] != nil) {
+            return [candidate hasPrefix:@"v"] ? [candidate substringFromIndex:1] : candidate;
+        }
+    }
+    return @"";
+}
+
+- (void)checkForDSHUpdates:(id)sender {
+    if ([self isBusy] || self.serviceActionInFlight) return;
+    NSString *dshPath = [self dshPath];
+    if (dshPath == nil) {
+        [self offerManagedRuntimeInstallationPresentAfterReady:NO];
+        return;
+    }
+
+    self.serviceActionInFlight = YES;
+    [self applyServiceState];
+    dispatch_async(self.inspectionQueue, ^{
+        NSString *installedVersion = [self installedDSHVersionAtPath:dshPath];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (installedVersion.length == 0) {
+                self.serviceActionInFlight = NO;
+                [self applyServiceState];
+                [self showAlertWithTitle:L(@"无法检查 DSH 更新") message:L(@"无法读取当前 DSH 版本。请尝试修复运行环境。")];
+                return;
+            }
+            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:DSHLatestMetadataAddress]
+                                                                  cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                                              timeoutInterval:10.0];
+            request.HTTPMethod = @"GET";
+            NSURLSessionDataTask *task = [NSURLSession.sharedSession dataTaskWithRequest:request
+                completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                    NSInteger status = [(NSHTTPURLResponse *)response statusCode];
+                    NSDictionary *metadata = (error == nil && status >= 200 && status < 400 && data.length > 0)
+                        ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;
+                    NSString *latestVersion = [metadata isKindOfClass:NSDictionary.class] ? metadata[@"version"] : nil;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        self.serviceActionInFlight = NO;
+                        [self applyServiceState];
+                        if (![latestVersion isKindOfClass:NSString.class] || latestVersion.length == 0) {
+                            [self showAlertWithTitle:L(@"无法检查 DSH 更新")
+                                             message:L(@"无法连接 npm 官方注册表或读取最新版本。请检查网络后重试。")];
+                            return;
+                        }
+                        if ([self compareSemanticVersion:latestVersion toVersion:installedVersion] != NSOrderedDescending) {
+                            [self showAlertWithTitle:L(@"DSH 已是最新版本")
+                                             message:[NSString stringWithFormat:L(@"当前版本：%@\nnpm latest：%@"), installedVersion, latestVersion]];
+                            return;
+                        }
+                        [self showDSHUpdateAvailableFrom:installedVersion toVersion:latestVersion dshPath:dshPath];
+                    });
+                }];
+            [task resume];
+        });
+    });
+}
+
+- (void)showDSHUpdateAvailableFrom:(NSString *)installedVersion toVersion:(NSString *)latestVersion dshPath:(NSString *)dshPath {
+    BOOL managed = [dshPath hasPrefix:[[self supportPath] stringByAppendingString:@"/"]];
+    BOOL tested = [latestVersion isEqualToString:[self recommendedDSHVersion]];
+    NSString *compatibility = tested
+        ? L(@"这个版本已经过当前控制器验证。")
+        : [NSString stringWithFormat:L(@"当前控制器验证版本为 %@；更新后部分插件或 Profile 可能需要同步升级。"), [self recommendedDSHVersion]];
+    NSString *ownership = managed
+        ? L(@"更新会安全停止服务、事务化替换应用托管的 DSH，然后重新启动原本正在运行的服务。")
+        : L(@"当前 DSH 由应用外部管理。继续会切换到应用托管版本；若服务正在运行，会先安全停止再重新启动。");
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.messageText = L(@"发现 DSH 更新");
+    alert.informativeText = [NSString stringWithFormat:L(@"当前版本：%@\n最新版本：%@\n\n%@\n%@"), installedVersion, latestVersion, compatibility, ownership];
+    [alert addButtonWithTitle:[NSString stringWithFormat:L(@"更新到 %@"), latestVersion]];
+    [alert addButtonWithTitle:L(@"取消")];
+    if ([alert runModal] == NSAlertFirstButtonReturn) {
+        [self requestRuntimeInstallationVersion:latestVersion startAfterInstall:NO
+                              presentAfterReady:NO reuseCompatibleEnvironment:NO
+                      externalStopAlreadyConfirmed:YES];
+    }
+}
+
+- (void)offerManagedRuntimeInstallationPresentAfterReady:(BOOL)presentAfterReady {
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.messageText = L(@"安装 DeepSeek Harness 运行环境？");
+    alert.informativeText = [NSString stringWithFormat:L(@"应用会先检测并复用这台 Mac 上现有且兼容的 DSH 与 Node.js；不会覆盖用户安装的环境。只有 DSH 缺失、损坏或版本低于 %@ 时才补装应用托管的 DSH；只有 Node.js 缺失、损坏或低于 20 时才下载私有 Node.js。不需要管理员权限。需要下载时会访问 nodejs.org 和 npm 官方注册表。"), [self recommendedDSHVersion]];
+    [alert addButtonWithTitle:L(@"一键安装")];
+    [alert addButtonWithTitle:L(@"取消")];
+    if ([alert runModal] == NSAlertFirstButtonReturn) {
+        [self requestRuntimeInstallationVersion:[self recommendedDSHVersion]
+                               startAfterInstall:YES presentAfterReady:presentAfterReady
+                       reuseCompatibleEnvironment:YES
+                      externalStopAlreadyConfirmed:NO];
+    }
+}
+
+- (void)requestRuntimeInstallationVersion:(NSString *)version
+                         startAfterInstall:(BOOL)startAfterInstall presentAfterReady:(BOOL)presentAfterReady
+                reuseCompatibleEnvironment:(BOOL)reuseCompatibleEnvironment
+                externalStopAlreadyConfirmed:(BOOL)externalStopAlreadyConfirmed {
+    if ([self isBusy] || self.serviceActionInFlight) return;
+    self.serviceActionInFlight = YES;
+    [self applyServiceState];
+    [self inspectServiceAndHealth:^(DSHListenerInfo *info, __unused BOOL healthy) {
+        self.serviceActionInFlight = NO;
+        [self applyServiceState];
+        if (info.pid > 0 && !info.isHarness) {
+            self.serviceState = DSHServiceStateBlocked;
+            [self applyServiceState];
+            [self showAlertWithTitle:L(@"无法安装运行环境") message:L(@"端口 3080 正被其他服务占用。请先释放端口，再重试更新。")];
+            return;
+        }
+        BOOL shouldStart = startAfterInstall || info.isHarness;
+        if (info.isHarness) {
+            if (!info.ownedByController && !externalStopAlreadyConfirmed) {
+                NSAlert *alert = [[NSAlert alloc] init];
+                alert.messageText = L(@"停止外部启动的 Harness 以继续？");
+                alert.informativeText = L(@"端口 3080 上的 Harness 不是由当前控制器启动的。安装托管运行环境需要先停止它，可能会中断终端或其他工具中的任务；完成后控制器会重新启动服务。");
+                [alert addButtonWithTitle:L(@"停止并继续")];
+                [alert addButtonWithTitle:L(@"取消")];
+                if ([alert runModal] != NSAlertFirstButtonReturn) return;
+            }
+            self.pendingRuntimeVersion = version;
+            self.pendingRuntimeStartAfterInstall = shouldStart;
+            self.pendingRuntimePresentAfterReady = presentAfterReady;
+            self.pendingRuntimeReuseCompatibleEnvironment = reuseCompatibleEnvironment;
+            [self beginStopPID:info.pid restartAfterStop:NO presentAfterRestart:NO];
+            return;
+        }
+        [self beginRuntimeInstallationVersion:version startAfterInstall:shouldStart
+                            presentAfterReady:presentAfterReady reuseCompatibleEnvironment:reuseCompatibleEnvironment];
+    }];
+}
+
+- (void)clearPendingRuntimeInstallation {
+    self.pendingRuntimeVersion = nil;
+    self.pendingRuntimeStartAfterInstall = NO;
+    self.pendingRuntimePresentAfterReady = NO;
+    self.pendingRuntimeReuseCompatibleEnvironment = NO;
+}
+
+- (void)beginRuntimeInstallationVersion:(NSString *)version
+                       startAfterInstall:(BOOL)startAfterInstall presentAfterReady:(BOOL)presentAfterReady
+              reuseCompatibleEnvironment:(BOOL)reuseCompatibleEnvironment {
+    if (self.runtimeInstallTask.running) return;
+    NSString *installerPath = [self runtimeInstallerPath];
+    if (installerPath.length == 0 || ![NSFileManager.defaultManager isReadableFileAtPath:installerPath]) {
+        self.serviceState = DSHServiceStateFailed;
+        [self applyServiceState];
+        [self showAlertWithTitle:L(@"无法安装运行环境") message:L(@"应用内置安装器缺失。请重新下载完整安装包。")];
+        return;
+    }
+
+    NSString *logPath = [self runtimeInstallLogPath];
+    [NSFileManager.defaultManager createDirectoryAtPath:logPath.stringByDeletingLastPathComponent
+                             withIntermediateDirectories:YES attributes:nil error:nil];
+    if (![NSFileManager.defaultManager fileExistsAtPath:logPath]) {
+        [NSFileManager.defaultManager createFileAtPath:logPath contents:NSData.data attributes:nil];
+    }
+    self.runtimeInstallLogHandle = [NSFileHandle fileHandleForWritingAtPath:logPath];
+    if (!self.runtimeInstallLogHandle) {
+        self.serviceState = DSHServiceStateFailed;
+        [self applyServiceState];
+        [self showAlertWithTitle:L(@"无法安装运行环境") message:[NSString stringWithFormat:L(@"无法写入安装日志：%@"), logPath]];
+        return;
+    }
+    [self.runtimeInstallLogHandle truncateFileAtOffset:0];
+
+    self.serviceState = DSHServiceStateInstalling;
+    NSInteger token = ++self.transitionToken;
+    [self applyServiceState];
+    self.runtimeInstallTask = [[NSTask alloc] init];
+    self.runtimeInstallTask.launchPath = @"/bin/zsh";
+    self.runtimeInstallTask.arguments = @[ installerPath ];
+    NSMutableDictionary *environment = NSProcessInfo.processInfo.environment.mutableCopy;
+    environment[@"DEEPSEEK_HARNESS_DSH_VERSION"] = version;
+    environment[@"DEEPSEEK_HARNESS_REUSE_COMPATIBLE_ENVIRONMENT"] = reuseCompatibleEnvironment ? @"1" : @"0";
+    NSString *language = NSLocale.preferredLanguages.firstObject ?: @"en";
+    environment[@"DEEPSEEK_HARNESS_LANGUAGE"] = [language hasPrefix:@"zh"] ? @"zh-Hans" : @"en";
+    self.runtimeInstallTask.environment = environment;
+    self.runtimeInstallTask.standardOutput = self.runtimeInstallLogHandle;
+    self.runtimeInstallTask.standardError = self.runtimeInstallLogHandle;
+    __weak typeof(self) weakSelf = self;
+    self.runtimeInstallTask.terminationHandler = ^(NSTask *task) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            typeof(self) strongSelf = weakSelf;
+            if (!strongSelf) return;
+            [strongSelf.runtimeInstallLogHandle closeFile];
+            strongSelf.runtimeInstallLogHandle = nil;
+            strongSelf.runtimeInstallTask = nil;
+            if (strongSelf.transitionToken != token) return;
+            if (task.terminationStatus == 0 && [strongSelf dshPath] != nil) {
+                strongSelf.serviceState = DSHServiceStateStopped;
+                [strongSelf applyServiceState];
+                if (startAfterInstall) {
+                    if (!presentAfterReady) {
+                        [strongSelf showAlertWithTitle:reuseCompatibleEnvironment ? L(@"运行环境已就绪") : L(@"DSH 更新完成")
+                                               message:reuseCompatibleEnvironment
+                            ? L(@"已选择可用的现有环境，或补齐了缺失组件。控制器现在会启动服务。")
+                            : [NSString stringWithFormat:L(@"已安装 DSH %@。控制器现在会重新启动此前运行的服务。"), version]];
+                    }
+                    [strongSelf beginStartPresentAfterReady:presentAfterReady];
+                } else {
+                    [strongSelf showAlertWithTitle:L(@"DSH 更新完成")
+                                           message:[NSString stringWithFormat:L(@"已安装 DSH %@。服务保持停止，可随时从 Dock 或鲸鱼菜单打开。"), version]];
+                }
+                return;
+            }
+            strongSelf.serviceState = DSHServiceStateFailed;
+            [strongSelf applyServiceState];
+            [strongSelf showRuntimeInstallationFailureForVersion:version
+                                                startAfterInstall:startAfterInstall presentAfterReady:presentAfterReady
+                                       reuseCompatibleEnvironment:reuseCompatibleEnvironment];
+        });
+    };
+    @try {
+        [self.runtimeInstallTask launch];
+    } @catch (NSException *exception) {
+        [self.runtimeInstallLogHandle closeFile];
+        self.runtimeInstallLogHandle = nil;
+        self.runtimeInstallTask = nil;
+        self.serviceState = DSHServiceStateFailed;
+        [self applyServiceState];
+        [self showRuntimeInstallationFailureForVersion:version
+                                      startAfterInstall:startAfterInstall presentAfterReady:presentAfterReady
+                             reuseCompatibleEnvironment:reuseCompatibleEnvironment];
+    }
+}
+
+- (void)showRuntimeInstallationFailureForVersion:(NSString *)version
+                                startAfterInstall:(BOOL)startAfterInstall presentAfterReady:(BOOL)presentAfterReady
+                       reuseCompatibleEnvironment:(BOOL)reuseCompatibleEnvironment {
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.messageText = L(@"运行环境安装失败");
+    NSString *logPath = [self runtimeInstallLogPath];
+    NSString *logText = [NSString stringWithContentsOfFile:logPath encoding:NSUTF8StringEncoding error:nil] ?: @"";
+    BOOL outOfMemory = [logText rangeOfString:@"heap out of memory" options:NSCaseInsensitiveSearch].location != NSNotFound
+        || [logText rangeOfString:@"allocation failed" options:NSCaseInsensitiveSearch].location != NSNotFound;
+    alert.informativeText = outOfMemory
+        ? [NSString stringWithFormat:L(@"安装 DSH 依赖时耗尽了 Node.js 内存。请先关闭占用内存较多的应用后重试；安装器会根据设备内存使用 3–8 GB 的堆上限。失败的候选环境未被启用，原有环境已保留。日志：%@"), logPath]
+        : [NSString stringWithFormat:L(@"失败的候选运行环境未被启用；如果此前已有可用运行环境，它已被保留。请检查网络后重试，或查看日志：%@"), logPath];
+    [alert addButtonWithTitle:L(@"重试")];
+    [alert addButtonWithTitle:L(@"查看日志")];
+    [alert addButtonWithTitle:L(@"取消")];
+    NSModalResponse response = [alert runModal];
+    if (response == NSAlertFirstButtonReturn) {
+        [self beginRuntimeInstallationVersion:version startAfterInstall:startAfterInstall
+                            presentAfterReady:presentAfterReady reuseCompatibleEnvironment:reuseCompatibleEnvironment];
+    } else if (response == NSAlertSecondButtonReturn) {
+        NSURL *logURL = [NSURL fileURLWithPath:[self runtimeInstallLogPath]];
+        [NSWorkspace.sharedWorkspace activateFileViewerSelectingURLs:@[ logURL ]];
+    }
 }
 
 - (void)openHarness:(id)sender {
@@ -599,10 +1083,13 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
 - (void)beginStartPresentAfterReady:(BOOL)presentAfterReady {
     if ([self isBusy]) return;
     NSString *dshPath = [self dshPath];
-    if (dshPath == nil) {
-        self.serviceState = DSHServiceStateFailed;
+    NSString *dshVersion = dshPath == nil ? @"" : [self installedDSHVersionAtPath:dshPath];
+    BOOL compatible = dshVersion.length > 0 &&
+        [self compareSemanticVersion:dshVersion toVersion:[self recommendedDSHVersion]] != NSOrderedAscending;
+    if (!compatible) {
+        self.serviceState = DSHServiceStateStopped;
         [self applyServiceState];
-        [self showAlertWithTitle:L(@"找不到 DeepSeek Harness") message:L(@"未找到可执行的 dsh。请使用完整安装包重新安装。")];
+        [self offerManagedRuntimeInstallationPresentAfterReady:presentAfterReady];
         return;
     }
     NSString *logPath = [self logPath];
@@ -625,10 +1112,7 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     // Presentation is owned by this controller. Prevent DSH from opening a
     // second browser tab before the saved browser/in-app preference is applied.
     self.serviceTask.arguments = @[ @"web", @"--no-open" ];
-    NSMutableDictionary *environment = NSProcessInfo.processInfo.environment.mutableCopy;
-    NSString *existingPath = environment[@"PATH"] ?: @"/usr/bin:/bin:/usr/sbin:/sbin";
-    environment[@"PATH"] = [NSString stringWithFormat:@"%@:%@", [self privateRuntimeBinPath], existingPath];
-    self.serviceTask.environment = environment;
+    self.serviceTask.environment = [self environmentForDSHPath:dshPath];
     self.serviceTask.standardOutput = self.logHandle;
     self.serviceTask.standardError = self.logHandle;
     __weak typeof(self) weakSelf = self;
@@ -768,6 +1252,7 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     NSInteger token = ++self.transitionToken;
     [self applyServiceState];
     if (kill(pid, SIGTERM) != 0) {
+        [self clearPendingRuntimeInstallation];
         self.serviceState = DSHServiceStateFailed;
         [self applyServiceState];
         [self showAlertWithTitle:L(@"停止失败") message:[NSString stringWithFormat:L(@"无法停止 PID %d。"), pid]];
@@ -787,11 +1272,21 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
                 [self removeOwnershipRecord];
                 self.serviceState = DSHServiceStateStopped;
                 [self applyServiceState];
-                if (restartAfterStop) [self beginStartPresentAfterReady:presentAfterRestart];
+                if (self.pendingRuntimeVersion.length > 0) {
+                    NSString *version = self.pendingRuntimeVersion;
+                    BOOL startAfterInstall = self.pendingRuntimeStartAfterInstall;
+                    BOOL presentAfterReadyForInstall = self.pendingRuntimePresentAfterReady;
+                    BOOL reuseCompatibleEnvironment = self.pendingRuntimeReuseCompatibleEnvironment;
+                    [self clearPendingRuntimeInstallation];
+                    [self beginRuntimeInstallationVersion:version
+                                         startAfterInstall:startAfterInstall presentAfterReady:presentAfterReadyForInstall
+                                reuseCompatibleEnvironment:reuseCompatibleEnvironment];
+                } else if (restartAfterStop) [self beginStartPresentAfterReady:presentAfterRestart];
                 else if (self.hasPendingPresentation) [self beginStartPresentAfterReady:YES];
                 return;
             }
             if (attemptsRemaining <= 0) {
+                [self clearPendingRuntimeInstallation];
                 self.serviceState = info.isHarness ? DSHServiceStateFailed : DSHServiceStateBlocked;
                 [self applyServiceState];
                 [self showAlertWithTitle:L(@"服务未能停止") message:L(@"已等待 15 秒。控制器不会强制终止进程，以免丢失工作。")];
@@ -1038,8 +1533,10 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
         self.windowActionButton.title = L(@"重新加载");
         self.windowActionButton.enabled = YES;
         [self.windowProgress stopAnimation:nil];
-    } else if (self.serviceState == DSHServiceStateStarting || self.serviceState == DSHServiceStateUnknown) {
-        self.connectionLabel.stringValue = L(@"正在连接服务…");
+    } else if (self.serviceState == DSHServiceStateInstalling ||
+               self.serviceState == DSHServiceStateStarting || self.serviceState == DSHServiceStateUnknown) {
+        self.connectionLabel.stringValue = self.serviceState == DSHServiceStateInstalling
+            ? L(@"正在安装运行环境…") : L(@"正在连接服务…");
         self.connectionLabel.textColor = NSColor.secondaryLabelColor;
         self.windowActionButton.enabled = NO;
         [self.windowProgress startAnimation:nil];
@@ -1209,7 +1706,7 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
 
 - (void)showUsageGuide:(id)sender {
     [self showAlertWithTitle:L(@"DeepSeek Harness 使用说明")
-                     message:L(@"• 点击 Dock：按默认方式打开或回到 Harness\n• 点击菜单栏小鲸鱼：查看状态、切换打开方式、重启或停止服务\n• 红色圆点表示异常，橙色表示处理中，绿色表示运行正常\n• 应用内窗口关闭后，小鲸鱼和服务仍继续运行\n• “登录时静默启动”只启动小鲸鱼，不自动打开页面")];
+                     message:L(@"• 点击 Dock：按默认方式打开或回到 Harness\n• 点击菜单栏小鲸鱼：查看状态、切换打开方式、重启或停止服务\n• 从“服务”菜单可主动检查 DSH 更新，确认后才会安装\n• 灰色空心点表示服务已停止，绿色实心点表示运行正常；橙色表示处理中，红色表示异常\n• 应用内窗口关闭后，小鲸鱼和服务仍继续运行\n• “登录时静默启动”只启动小鲸鱼，不自动打开页面")];
 }
 
 - (void)showAbout:(id)sender {
@@ -1219,6 +1716,13 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
 }
 
 - (void)quitController:(id)sender { [NSApp terminate:nil]; }
+
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
+    if (!self.runtimeInstallTask.running) return NSTerminateNow;
+    [self showAlertWithTitle:L(@"正在安装运行环境")
+                     message:L(@"请等待当前 DSH 安装或更新完成后再退出，避免中断已开始的安全替换。")];
+    return NSTerminateCancel;
+}
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)sender hasVisibleWindows:(BOOL)flag {
     [self openHarness:nil];

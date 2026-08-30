@@ -16,7 +16,7 @@
 <p align="center"><a href="README.md">English（默认）</a> · <strong>简体中文</strong></p>
 
 <p align="center">
-  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.0-macOS.zip"><strong>下载 DeepSeek Harness 1.0.0 macOS 版</strong></a>
+  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.0-macOS.dmg"><strong>下载 DeepSeek Harness 1.0.0 DMG</strong></a>
 </p>
 
 DeepSeek Harness macOS 版是社区开发的辅助应用，把 Dock 启动入口、菜单栏控制、本地服务管理和可选的应用内窗口合并为一个程序。点击 Dock 时会优先聚焦已有 Harness 网页或窗口，而不是每次都故意新开一个标签页。
@@ -41,9 +41,9 @@ DeepSeek Harness macOS 版是社区开发的辅助应用，把 Dock 启动入口
 
 ### Dock 与菜单栏合并（交互预览）
 
-![DeepSeek Harness Dock 与菜单栏统一控制器中文预览](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.zh-Hans.svg?v=2)
+![DeepSeek Harness Dock 与菜单栏统一控制器中文预览](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.zh-Hans.svg?v=3)
 
-Dock 图标和菜单栏小鲸鱼控制同一个应用；所有入口都集中在同一菜单中，不需要再次打开控制程序。
+Dock 图标和菜单栏小鲸鱼控制同一个应用；菜单同时提供 DSH 更新检查，所有入口都集中在这里，不需要再次打开控制程序。
 
 ### 聚焦已有浏览器标签（流程预览）
 
@@ -63,6 +63,9 @@ Dock 图标和菜单栏小鲸鱼控制同一个应用；所有入口都集中在
 - **先复用、再新建：** 浏览器模式会在 Safari 和主流 Chromium 浏览器中查找已有本地标签；应用内模式会恢复同一个窗口和网页会话。
 - **记住我的选择：** 浏览器或应用内窗口都可以保存为默认方式，并随时在菜单中修改。
 - **理解服务状态：** 页面与插件资源预检、旧加载清单自动恢复、端口冲突保护和服务所有权记录，可提升启动可靠性并避免误停其他进程。
+- **现有环境优先：** 用户已安装且可运行、不低于验证基线的 DSH 会原样复用；只有 DSH 缺失时会优先复用 Node.js 20+ 与 npm，确有必要时才下载私有 Node.js。
+- **全新 Mac 也能使用：** 没有兼容环境时，应用会为当前用户配置隔离的 Node.js 与 DSH，全程无需管理员权限。
+- **更新由你决定：** “服务”菜单可检查 npm 官方 `latest` 版本，并在你确认后才更新；不会后台静默更新 DSH。
 - **登录时静默启动：** 使用 macOS 登录项，只启动菜单栏控制器，不自动弹出页面。
 - **原生双语与主题：** 支持英文和简体中文，界面自动跟随 Mac 的亮色/深色外观。
 - **通用 Mac 包：** 同一个发布包支持 Apple 芯片和 Intel Mac。
@@ -73,38 +76,44 @@ Dock 图标和菜单栏小鲸鱼控制同一个应用；所有入口都集中在
 | --- | --- |
 | macOS | 13 Ventura 或更高版本 |
 | Mac | Apple 芯片或 Intel |
-| 网络 | 首次安装时需要下载 Node.js 和 DSH |
+| 网络 | 仅在缺少兼容组件或用户确认更新时需要 |
 | 本地地址 | `http://127.0.0.1:3080` |
-| 运行时版本 | Node.js `22.21.1` |
-| DSH 包版本 | `@deepseek-ai/dsh@0.1.1-rc.2` |
+| 可复用 Node.js | 20 或更高版本 |
+| 私有备用 Node.js | `22.21.1` |
+| 可复用 DSH | 可正常运行的 `0.1.1-rc.2` 或更高版本 |
+| 全新安装验证版本 | `@deepseek-ai/dsh@0.1.1-rc.2` |
 
 ## 安装
 
-1. 从 [GitHub Releases](https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest) 下载最新 ZIP。
-2. 解压完整文件夹，保持 `install.command` 与 `DeepSeek Harness.app` 在同一目录。
-3. 按住 Control 点击 `install.command`，选择**打开**，再次确认**打开**，然后查看终端进度。
-4. 全新安装会放到 `~/Applications`、加入 Dock 并启动同一个 Dock/菜单栏控制器；已有版本会在原位置升级。
+1. 从 [GitHub Releases](https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest) 下载最新 DMG。
+2. 打开 DMG，把 **DeepSeek Harness** 拖到 **Applications**。
+3. 按住 Control 点击已安装的 App，选择**打开**，再次确认**打开**。
+4. 第一次正常启动会把应用加入 Dock，并启动同一个 Dock/菜单栏控制器。升级时替换 Applications 中的旧 App；偏好设置与 Harness 数据会继续保留。
 
-安装器会校验应用，从 `nodejs.org` 下载 Node.js 并验证官方 SHA-256，再从 npm 安装固定版本的 DSH。正常的当前用户安装不会要求管理员权限。
+应用会先发现并运行现有兼容的 DSH/Node，包括 Homebrew、npm、nvm、fnm、Volta、asdf、mise、nodenv、MacPorts、bun 与 pnpm 等常见位置。选定的绝对路径会被记录，因此以后从 Finder、Dock 或登录项启动时不依赖交互式终端的 `PATH`。应用不会修改外部 DSH 或 Node。
+
+只有 DSH 缺失、损坏或低于验证基线时，应用才补装隔离的 DSH；只要现有 Node.js 20+ 与 npm 可用，就不重复安装 Node。Node 缺失、损坏或版本过低时，才从 `nodejs.org` 下载并校验私有 Node.js 22.21.1。`~/.dsh` 下的 Profile、会话、插件与凭据不会被替换。全新配置可能需要数分钟，请保持应用运行直到完成。安装期间会根据设备物理内存在 3–8 GB 之间设置 Node.js 堆内存上限，不再依赖 npm 较小的默认值。
+
+默认版本保持精确，是为了让每次全新安装都从本控制器及插件加载行为已经验证过的同一个顶层 DSH 版本开始，并不代表永远锁死。选择**服务 → 检查 DSH 更新…**即可与 npm `latest` 比较，确认版本变化后再升级。安装失败时会保留此前可用的托管运行时。
 
 ### 1.0.0 的 Gatekeeper 提示
 
-1.0.0 使用 ad-hoc 临时签名，尚未经过 Apple 公证，因此 macOS 可能提示“无法验证开发者”。请使用上面的 Control 点击**打开**流程；如果第一次已被拦截，也可以前往**系统设置 → 隐私与安全性 → 仍要打开**。
+1.0.0 使用 ad-hoc 临时签名，尚未经过 Apple 公证，因此 macOS 可能提示“无法验证开发者”。请在 Applications 中按住 Control 点击 App 并选择**打开**；如果第一次已被拦截，也可以前往**系统设置 → 隐私与安全性 → 仍要打开**。
 
 不要全局关闭 Gatekeeper。未来需要 Apple Developer ID 和公证，才能消除首次运行提示。
 
 ### 校验下载
 
-下载 ZIP 旁边的 `.sha256` 文件，保持两者位于同一目录，然后执行：
+下载 DMG 旁边可选的 `.sha256` 文件，保持两者位于同一目录，然后执行：
 
 ```sh
-shasum -a 256 -c DeepSeek-Harness-1.0.0-macOS.zip.sha256
+shasum -a 256 -c DeepSeek-Harness-1.0.0-macOS.dmg.sha256
 ```
 
 ## 日常使用
 
 - 点击 **Dock 图标**：按已保存的默认方式打开。
-- 点击 **菜单栏小鲸鱼**：可以打开 Harness、仅本次使用备用方式、修改默认方式、查看服务状态、重启/停止服务、复制诊断信息或设置登录启动。
+- 点击 **菜单栏小鲸鱼**：可以打开 Harness、仅本次使用备用方式、修改默认方式、查看服务状态、检查 DSH 更新、重启/停止服务、复制诊断信息或设置登录启动。
 - **浏览器模式**：找到受支持的已有本地标签就聚焦，确认没有时才新建。
 - **应用内模式**：关闭窗口只是隐藏窗口，菜单栏小鲸鱼和 Harness 服务继续保留。
 - **退出 DeepSeek Harness**：退出控制器；服务启停是独立、明确的操作。
@@ -115,8 +124,8 @@ shasum -a 256 -c DeepSeek-Harness-1.0.0-macOS.zip.sha256
 
 ## 隐私与安全
 
-- 不包含分析统计、遥测、广告或自动更新追踪。
-- 控制器只连接本地 Harness 地址；安装器只下载已声明的运行时依赖。
+- 不包含分析统计、遥测、广告或后台更新追踪。
+- 控制器只连接本地 Harness 地址；仅在必须补装 DSH 或你主动选择**检查 DSH 更新…**时访问 npm 官方注册表，只有确实需要私有 Node 备用环境时才访问 `nodejs.org`。
 - 菜单复制的诊断信息包含运行状态，公开发布前请先检查。
 - Harness 登录始终在本地 Harness 页面中完成，切勿把凭据粘贴到公开 Issue。
 
@@ -130,7 +139,7 @@ cd deepseek-harness-macos
 ./scripts/build-release.command
 ```
 
-通用、ad-hoc 签名的发布包与校验文件会生成到 `dist/`。构建过程会检查 plist、签名、CPU 架构和 ZIP 完整性。长期维护请阅读[架构说明](docs/architecture.md)、[维护指南](docs/maintenance.md)和[发布流程](docs/release-process.md)。
+通用、ad-hoc 签名的 DMG 与校验文件会生成到 `dist/`。构建过程会检查 plist、签名、CPU 架构和磁盘映像完整性。长期维护请阅读[架构说明](docs/architecture.md)、[维护指南](docs/maintenance.md)和[发布流程](docs/release-process.md)。
 
 ## 贡献与支持
 
