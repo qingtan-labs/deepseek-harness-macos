@@ -8,7 +8,7 @@
 
 The image above is a real, privacy-safe capture of a blank Harness session. It contains no API key, conversation history, or user content. The images below are workflow previews made with demonstration content.
 
-![Menu bar controller](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.svg)
+![Menu bar controller](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.svg?v=2)
 
 The controller menu surfaces external-service status, Open/Focus, a one-time alternate window, the saved opening method, service controls, silent login startup, the user guide, version information, and a controller-only quit that leaves an externally started service running.
 

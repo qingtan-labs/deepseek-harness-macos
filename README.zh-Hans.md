@@ -55,7 +55,7 @@ DeepSeek Harness macOS 版是社区开发的辅助应用，把 Dock 启动入口
 
 ### Dock 与菜单栏合并（完整交互预览）
 
-![DeepSeek Harness Dock 与菜单栏统一控制器中文预览](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.zh-Hans.svg)
+![DeepSeek Harness Dock 与菜单栏统一控制器中文预览](https://raw.githubusercontent.com/qingtan-labs/deepseek-harness-macos/main/docs/images/menu-bar-controller.zh-Hans.svg?v=2)
 
 Dock 图标和菜单栏小鲸鱼控制同一个应用；所有入口都集中在同一菜单中，不需要再次打开控制程序。
 
