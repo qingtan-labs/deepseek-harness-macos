@@ -2,7 +2,7 @@
 
 ## macOS says the app or installer cannot be opened
 
-Version 1.0.0 is not Apple-notarized. After dragging the app from the DMG to Applications, Control-click the installed app, choose **Open**, and confirm. If already blocked, use **System Settings → Privacy & Security → Open Anyway**. Download only from this repository's Releases page and verify the checksum.
+Version 1.0.1 is not Apple-notarized. After dragging the app from the DMG to Applications, Control-click the installed app, choose **Open**, and confirm. If already blocked, use **System Settings → Privacy & Security → Open Anyway**. Download only from this repository's Releases page and verify the checksum.
 
 ## A new browser tab is still created
 

@@ -30,14 +30,14 @@ jobs:
 
       - name: Verify checksum
         working-directory: dist
-        run: shasum -a 256 -c DeepSeek-Harness-1.0.0-macOS.dmg.sha256
+        run: shasum -a 256 -c DeepSeek-Harness-1.0.1-macOS.dmg.sha256
 
       - name: Upload smoke-test artifact
         uses: actions/upload-artifact@v7
         with:
-          name: DeepSeek-Harness-1.0.0-macOS
+          name: DeepSeek-Harness-1.0.1-macOS
           path: |
-            dist/DeepSeek-Harness-1.0.0-macOS.dmg
-            dist/DeepSeek-Harness-1.0.0-macOS.dmg.sha256
+            dist/DeepSeek-Harness-1.0.1-macOS.dmg
+            dist/DeepSeek-Harness-1.0.1-macOS.dmg.sha256
           if-no-files-found: error
           retention-days: 7

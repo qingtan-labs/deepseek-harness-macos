@@ -2,6 +2,12 @@
 
 All notable changes are documented here. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-09-03
+
+### Fixed
+
+- A stopped service now uses an explicit gray hollow indicator instead of a solid dot with a semantic text color. Opening the whale menu triggers an immediate state refresh, and stale ownership records are cleared when no listener exists.
+
 ## [1.0.0] - 2026-08-30
 
 ### Added
@@ -24,7 +30,6 @@ All notable changes are documented here. This project follows [Semantic Versioni
 
 ### Fixed
 
-- A stopped service now uses an explicit gray hollow indicator instead of a solid dot with a semantic text color. Opening the whale menu triggers an immediate state refresh, and stale ownership records are cleared when no listener exists.
 - Fresh DSH dependency installation now raises Node.js's heap limit adaptively from 3 GB to 8 GB based on the Mac's physical memory, preventing npm's default ~2 GB ceiling from aborting large installs. Memory failures receive a specific bilingual retry message and still leave the previous runtime untouched.
 - Upgrading the app no longer reinstalls Node.js or DSH when the user's current compatible environment already works.
 - Managed DSH services start with `--no-open`, leaving all browser and in-app presentation decisions to the shared controller and preventing an extra browser tab during service startup.
@@ -34,4 +39,5 @@ All notable changes are documented here. This project follows [Semantic Versioni
 
 - The 1.0.0 binary is ad-hoc signed and not Apple-notarized. See the README for the safe first-open flow.
 
+[1.0.1]: https://github.com/qingtan-labs/deepseek-harness-macos/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/qingtan-labs/deepseek-harness-macos/releases/tag/v1.0.0

@@ -1,5 +1,5 @@
 #!/bin/zsh
-# DeepSeek Harness 1.0.0 bilingual per-user installer.
+# DeepSeek Harness 1.0.1 bilingual per-user installer.
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -8,7 +8,7 @@ umask 077
 readonly APP_NAME='DeepSeek Harness.app'
 readonly APP_EXECUTABLE='DeepSeekHarness'
 readonly BUNDLE_IDENTIFIER='com.yestar.deepseek-harness'
-readonly APP_VERSION='1.0.0'
+readonly APP_VERSION='1.0.1'
 readonly SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
 readonly APP_SOURCE="$SCRIPT_DIR/$APP_NAME"
 readonly RUNTIME_INSTALLER="$APP_SOURCE/Contents/Resources/InstallRuntime.command"

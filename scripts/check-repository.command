@@ -4,7 +4,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 readonly ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd -P)"
-readonly EXPECTED_VERSION='1.0.0'
+readonly EXPECTED_VERSION='1.0.1'
 readonly REQUIRED_FILES=(
   README.md README.zh-Hans.md CHANGELOG.md CONTRIBUTING.md SECURITY.md SUPPORT.md
   CODE_OF_CONDUCT.md LICENSE manifest.json
@@ -40,6 +40,8 @@ manifest_version="$(/usr/bin/plutil -extract version raw manifest.json)"
 /usr/bin/grep -Fq "DeepSeek-Harness-$EXPECTED_VERSION-macOS" scripts/build-release.command
 /usr/bin/grep -Fq "DeepSeek-Harness-$EXPECTED_VERSION-macOS.dmg" README.md
 /usr/bin/grep -Fq "DeepSeek-Harness-$EXPECTED_VERSION-macOS.dmg" README.zh-Hans.md
+/usr/bin/grep -Fq "DeepSeek-Harness-$EXPECTED_VERSION-macOS.dmg.sha256" .github/workflows/build.yml
+/usr/bin/grep -Fq "name: DeepSeek-Harness-$EXPECTED_VERSION-macOS" .github/workflows/build.yml
 /usr/bin/grep -Fq 'DEEPSEEK_HARNESS_REUSE_COMPATIBLE_ENVIRONMENT' scripts/install-runtime.command
 /usr/bin/grep -Fq 'environment.plist' src/DeepSeekHarness.m
 /usr/bin/grep -Fq 'self.serviceTask.arguments = @[ @"web", @"--no-open" ];' src/DeepSeekHarness.m

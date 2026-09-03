@@ -1,6 +1,6 @@
-# DeepSeek Harness macOS 版 1.0.0
+# DeepSeek Harness macOS 版 1.0.1
 
-首个公开版本把 Dock 启动入口、菜单栏小鲸鱼、服务控制和可选的应用内窗口合并为一个原生双语 macOS 应用。
+本次维护版本让菜单栏服务状态清晰且不会误判：停止态使用灰色空心点，并在打开小鲸鱼菜单时立即刷新；Dock、浏览器复用、应用内窗口和运行环境管理能力保持完整。
 
 ## 主要特性
 
@@ -23,7 +23,7 @@
 
 ## 安装
 
-从本 Release 下载 `DeepSeek-Harness-1.0.0-macOS.dmg`，打开后把 **DeepSeek Harness** 拖到 **Applications**，再按住 Control 点击已安装的 App 并选择**打开**。
+从本 Release 下载 `DeepSeek-Harness-1.0.1-macOS.dmg`，打开后把 **DeepSeek Harness** 拖到 **Applications**，再按住 Control 点击已安装的 App 并选择**打开**。
 
 需要 macOS 13 或更高版本。只有缺少兼容本地组件或确认更新时才需要联网。现有外部 DSH/Node 和 `~/.dsh` 数据不会被修改；托管运行时替换会先暂存并验证，再正式启用。
 
@@ -36,7 +36,7 @@
 ## 完整性校验
 
 ```sh
-shasum -a 256 -c DeepSeek-Harness-1.0.0-macOS.dmg.sha256
+shasum -a 256 -c DeepSeek-Harness-1.0.1-macOS.dmg.sha256
 ```
 
 这是独立社区项目，不隶属于 DeepSeek。

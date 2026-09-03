@@ -16,7 +16,7 @@
 <p align="center"><a href="README.md">English（默认）</a> · <strong>简体中文</strong></p>
 
 <p align="center">
-  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.0-macOS.dmg"><strong>下载 DeepSeek Harness 1.0.0 DMG</strong></a>
+  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.1-macOS.dmg"><strong>下载 DeepSeek Harness 1.0.1 DMG</strong></a>
 </p>
 
 DeepSeek Harness macOS 版是社区开发的辅助应用，把 Dock 启动入口、菜单栏控制、本地服务管理和可选的应用内窗口合并为一个程序。点击 Dock 时会优先聚焦已有 Harness 网页或窗口，而不是每次都故意新开一个标签页。
@@ -96,9 +96,9 @@ Dock 图标和菜单栏小鲸鱼控制同一个应用；菜单同时提供 DSH �
 
 默认版本保持精确，是为了让每次全新安装都从本控制器及插件加载行为已经验证过的同一个顶层 DSH 版本开始，并不代表永远锁死。选择**服务 → 检查 DSH 更新…**即可与 npm `latest` 比较，确认版本变化后再升级。安装失败时会保留此前可用的托管运行时。
 
-### 1.0.0 的 Gatekeeper 提示
+### 1.0.1 的 Gatekeeper 提示
 
-1.0.0 使用 ad-hoc 临时签名，尚未经过 Apple 公证，因此 macOS 可能提示“无法验证开发者”。请在 Applications 中按住 Control 点击 App 并选择**打开**；如果第一次已被拦截，也可以前往**系统设置 → 隐私与安全性 → 仍要打开**。
+1.0.1 使用 ad-hoc 临时签名，尚未经过 Apple 公证，因此 macOS 可能提示“无法验证开发者”。请在 Applications 中按住 Control 点击 App 并选择**打开**；如果第一次已被拦截，也可以前往**系统设置 → 隐私与安全性 → 仍要打开**。
 
 不要全局关闭 Gatekeeper。未来需要 Apple Developer ID 和公证，才能消除首次运行提示。
 
@@ -107,7 +107,7 @@ Dock 图标和菜单栏小鲸鱼控制同一个应用；菜单同时提供 DSH �
 下载 DMG 旁边可选的 `.sha256` 文件，保持两者位于同一目录，然后执行：
 
 ```sh
-shasum -a 256 -c DeepSeek-Harness-1.0.0-macOS.dmg.sha256
+shasum -a 256 -c DeepSeek-Harness-1.0.1-macOS.dmg.sha256
 ```
 
 ## 日常使用

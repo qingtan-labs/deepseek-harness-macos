@@ -3,7 +3,7 @@
 ## Standard DMG installation
 
 1. Download the DMG and optional `.sha256` file from the same GitHub Release.
-2. Optionally verify it with `shasum -a 256 -c DeepSeek-Harness-1.0.0-macOS.dmg.sha256`.
+2. Optionally verify it with `shasum -a 256 -c DeepSeek-Harness-1.0.1-macOS.dmg.sha256`.
 3. Open the DMG and drag **DeepSeek Harness** onto **Applications**.
 4. Control-click the installed app, choose **Open**, and confirm the prompt.
 
@@ -36,7 +36,7 @@ Maintainers can still run `scripts/install.command` from a source checkout or le
 
 ## Gatekeeper
 
-The 1.0.0 release is ad-hoc signed rather than Developer ID signed and notarized. Control-click the installed app and choose **Open** for the first launch. If macOS blocks it, use **System Settings → Privacy & Security → Open Anyway**. Do not disable Gatekeeper globally.
+The 1.0.1 release is ad-hoc signed rather than Developer ID signed and notarized. Control-click the installed app and choose **Open** for the first launch. If macOS blocks it, use **System Settings → Privacy & Security → Open Anyway**. Do not disable Gatekeeper globally.
 
 ## Uninstall
 

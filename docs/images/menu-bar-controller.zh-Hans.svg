@@ -45,7 +45,7 @@
     <text x="424" y="406" fill="#111827" font-size="15">✓  登录时静默启动</text>
     <text x="424" y="445" fill="#111827" font-size="15">使用说明…</text>
     <line x1="416" x2="732" y1="464" y2="464" stroke="#d9dee7"/>
-    <text x="424" y="501" fill="#111827" font-size="15">关于 DeepSeek Harness 1.0.0</text>
+    <text x="424" y="501" fill="#111827" font-size="15">关于 DeepSeek Harness 1.0.1</text>
     <text x="424" y="540" fill="#111827" font-size="14">退出控制器（服务继续运行）</text><text x="728" y="540" text-anchor="end" fill="#7b8495" font-size="14">⌘Q</text>
     <rect x="418" y="570" width="312" height="48" rx="10" fill="#eef8f3"/>
     <text x="434" y="590" fill="#187a52" font-size="12.5">退出控制器后，外部启动的 Harness</text>

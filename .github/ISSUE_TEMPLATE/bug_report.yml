@@ -22,7 +22,7 @@ body:
     id: version
     attributes:
       label: App version
-      placeholder: 1.0.0
+      placeholder: 1.0.1
     validations:
       required: true
   - type: input
@@ -77,4 +77,3 @@ body:
     attributes:
       label: Sanitized diagnostics or relevant logs
       render: text
-

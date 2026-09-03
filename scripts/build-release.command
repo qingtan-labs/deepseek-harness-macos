@@ -8,7 +8,7 @@ readonly ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd -P)"
 readonly WORK_DIR="$ROOT_DIR/.build"
 readonly OUTPUT_DIR="$ROOT_DIR/dist"
 readonly APP_NAME='DeepSeek Harness.app'
-readonly RELEASE_NAME='DeepSeek-Harness-1.0.0-macOS'
+readonly RELEASE_NAME='DeepSeek-Harness-1.0.1-macOS'
 readonly APP_DIR="$WORK_DIR/$APP_NAME"
 readonly LOGIN_HELPER_DIR="$APP_DIR/Contents/Library/LoginItems/DeepSeek Harness Login Helper.app"
 readonly ICONSET_DIR="$WORK_DIR/DeepSeekHarness.iconset"
@@ -60,7 +60,7 @@ done
 /usr/bin/hdiutil create -quiet -volname 'DeepSeek Harness' -srcfolder "$DMG_DIR" -ov -format UDZO "$DMG_PATH"
 (cd "$OUTPUT_DIR" && /usr/bin/shasum -a 256 "$RELEASE_NAME.dmg" > "$RELEASE_NAME.dmg.sha256")
 /usr/bin/hdiutil verify "$DMG_PATH" >/dev/null
-/bin/cp "$ROOT_DIR/RELEASE-NOTES.md" "$OUTPUT_DIR/release-body-v1.0.0.md"
+/bin/cp "$ROOT_DIR/RELEASE-NOTES.md" "$OUTPUT_DIR/release-body-v1.0.1.md"
 /bin/rm -rf "$DMG_DIR" "$APP_DIR" "$ICONSET_DIR"
 
 print -r -- "Built: $DMG_PATH"

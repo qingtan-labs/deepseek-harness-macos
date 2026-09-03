@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.0-macOS.dmg"><strong>Download the DeepSeek Harness 1.0.0 DMG</strong></a>
+  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.1-macOS.dmg"><strong>Download the DeepSeek Harness 1.0.1 DMG</strong></a>
 </p>
 
 DeepSeek Harness for macOS is a community-built companion that combines the Dock launcher, menu bar controls, local service management, and an optional in-app window. Clicking the Dock icon focuses an existing Harness page or window whenever possible; it does not deliberately create another tab every time.
@@ -102,9 +102,9 @@ If DSH is missing, broken, or older than the tested baseline, the app installs o
 
 The tested default is intentionally exact so every fresh install starts from the same top-level DSH version validated against this controller and its plugin-loading behavior. It is a compatibility baseline, not a permanent lock: choose **Service → Check for DSH Updates…** to compare against npm `latest`, review the version change, and update explicitly. A failed install keeps the previously working managed runtime.
 
-### Gatekeeper notice for 1.0.0
+### Gatekeeper notice for 1.0.1
 
-Version 1.0.0 is ad-hoc signed and is not Apple-notarized. macOS may therefore show an unidentified-developer warning. Control-click the app in Applications and choose **Open**, or go to **System Settings → Privacy & Security → Open Anyway** after macOS blocks the first attempt.
+Version 1.0.1 is ad-hoc signed and is not Apple-notarized. macOS may therefore show an unidentified-developer warning. Control-click the app in Applications and choose **Open**, or go to **System Settings → Privacy & Security → Open Anyway** after macOS blocks the first attempt.
 
 Do not disable Gatekeeper globally. A future release requires an Apple Developer ID and notarization to remove this first-run warning.
 
@@ -113,7 +113,7 @@ Do not disable Gatekeeper globally. A future release requires an Apple Developer
 Download the optional `.sha256` file beside the DMG, keep both files in the same directory, then run:
 
 ```sh
-shasum -a 256 -c DeepSeek-Harness-1.0.0-macOS.dmg.sha256
+shasum -a 256 -c DeepSeek-Harness-1.0.1-macOS.dmg.sha256
 ```
 
 ## Everyday use

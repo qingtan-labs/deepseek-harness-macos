@@ -1,6 +1,6 @@
-# DeepSeek Harness for macOS 1.0.0
+# DeepSeek Harness for macOS 1.0.1
 
-The first public release brings the Dock launcher, menu bar whale, service controller, and optional in-app window into one bilingual native macOS app.
+This maintenance release makes the menu bar service indicator unambiguous and refreshes it as soon as the whale menu opens, while preserving the complete bilingual Dock, browser, in-app, and runtime-management experience.
 
 ## Highlights
 
@@ -23,7 +23,7 @@ The first public release brings the Dock launcher, menu bar whale, service contr
 
 ## Installation
 
-Download `DeepSeek-Harness-1.0.0-macOS.dmg` from this release, open it, and drag **DeepSeek Harness** onto **Applications**. Then Control-click the installed app and choose **Open**.
+Download `DeepSeek-Harness-1.0.1-macOS.dmg` from this release, open it, and drag **DeepSeek Harness** onto **Applications**. Then Control-click the installed app and choose **Open**.
 
 Requires macOS 13 or later. A network connection is needed only if compatible local components are missing or when an update is confirmed. Existing external DSH/Node installations and `~/.dsh` data are not modified. Managed runtime changes are staged and verified before activation.
 
@@ -38,7 +38,7 @@ This build is ad-hoc signed and not Apple-notarized. macOS can show an unidentif
 Verify the downloaded DMG with the optional checksum asset:
 
 ```sh
-shasum -a 256 -c DeepSeek-Harness-1.0.0-macOS.dmg.sha256
+shasum -a 256 -c DeepSeek-Harness-1.0.1-macOS.dmg.sha256
 ```
 
 This is an independent community project and is not affiliated with DeepSeek.
