@@ -15,6 +15,13 @@ For every app release, update these together:
 
 Keep the clean-install DSH target exact and review the minimum reusable baseline separately. Review upstream web, plugin-loader, and profile behavior before changing either. The in-app update action may install npm `latest` only after the user confirms the displayed version and compatibility notice; do not turn it into a silent background update. Node.js upgrades must use a published release whose `SHASUMS256.txt` includes both target Mac archives. Lowering or raising the reusable Node minimum requires tests with npm, direct scripts, and nvm/fnm/asdf-style shims.
 
+## Release history policy
+
+- Increment the semantic version and create a new tag and GitHub Release for every published iteration.
+- Keep all previously published Releases, tags, notes, checksums, and downloadable assets visible as the project history.
+- Never move, overwrite, or delete a published version unless the maintainer explicitly requests that exact version be changed or removed.
+- Mark only the newest stable release as **Latest**, and keep `CHANGELOG.md` cumulative so users can compare every iteration.
+
 ## Regression matrix
 
 Test at least these paths before release:
