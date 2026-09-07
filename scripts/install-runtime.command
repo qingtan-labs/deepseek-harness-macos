@@ -16,6 +16,7 @@ readonly DSH_VERSION="${DEEPSEEK_HARNESS_DSH_VERSION:-$DEFAULT_DSH_VERSION}"
 readonly REUSE_COMPATIBLE_ENVIRONMENT="${DEEPSEEK_HARNESS_REUSE_COMPATIBLE_ENVIRONMENT:-1}"
 readonly VALIDATE_STARTUP="${DEEPSEEK_HARNESS_VALIDATE_STARTUP:-1}"
 readonly DISCOVERY_TIMEOUT="${DEEPSEEK_HARNESS_DISCOVERY_TIMEOUT:-10}"
+readonly STARTUP_ATTEMPTS="${DEEPSEEK_HARNESS_STARTUP_ATTEMPTS:-60}"
 typeset -i physical_memory_mb=0
 typeset -i default_npm_heap_mb=3072
 physical_memory_bytes="$(/usr/sbin/sysctl -n hw.memsize 2>/dev/null || print -r -- 0)"
@@ -64,6 +65,8 @@ print -r -- "$DSH_VERSION" | /usr/bin/grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9
   || stop_with_error "$(localized "Invalid startup validation option." "启动验证选项无效。")"
 [[ "$DISCOVERY_TIMEOUT" == <-> ]] && (( DISCOVERY_TIMEOUT >= 1 && DISCOVERY_TIMEOUT <= 30 )) \
   || stop_with_error "$(localized "Invalid environment discovery timeout." "环境检测超时时间无效。")"
+[[ "$STARTUP_ATTEMPTS" == <-> ]] && (( STARTUP_ATTEMPTS >= 1 && STARTUP_ATTEMPTS <= 240 )) \
+  || stop_with_error "$(localized "Invalid startup validation timeout." "启动验证超时时间无效。")"
 [[ "$NPM_INSTALL_HEAP_MB" == <-> ]] && (( NPM_INSTALL_HEAP_MB >= 2048 && NPM_INSTALL_HEAP_MB <= 16384 )) \
   || stop_with_error "$(localized "Invalid npm installation memory limit." "npm 安装内存上限无效。")"
 [[ "$SUPPORT_DIR" == /* ]] || stop_with_error "$(localized "The support directory must be an absolute path." "运行环境目录必须是绝对路径。")"
@@ -439,8 +442,7 @@ else
     active_child_pid=$!
     typeset -i startup_attempts=0
     typeset -i startup_ready=0
-    while (( startup_attempts < 120 )); do
-      if ! /bin/kill -0 "$active_child_pid" 2>/dev/null; then break; fi
+    while (( startup_attempts < STARTUP_ATTEMPTS )); do
       if /usr/bin/curl --fail --silent --show-error --max-time 2 "$DSH_WEB_ADDRESS" -o "$startup_html" 2>/dev/null; then
         startup_ready=1
         break

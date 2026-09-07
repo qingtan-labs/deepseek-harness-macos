@@ -7,6 +7,7 @@ readonly ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd -P)"
 readonly INSTALLER="$ROOT_DIR/scripts/install-runtime.command"
 readonly TEST_ROOT="$(/usr/bin/mktemp -d /private/tmp/deepseek-harness-runtime-tests.XXXXXX)"
 export DEEPSEEK_HARNESS_VALIDATE_STARTUP=0
+export DEEPSEEK_HARNESS_STARTUP_ATTEMPTS=2
 
 cleanup() { /bin/rm -rf "$TEST_ROOT"; }
 trap cleanup EXIT INT TERM HUP
