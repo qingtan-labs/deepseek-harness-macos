@@ -8,6 +8,7 @@ readonly INSTALLER="$ROOT_DIR/scripts/install-runtime.command"
 readonly TEST_ROOT="$(/usr/bin/mktemp -d /private/tmp/deepseek-harness-runtime-tests.XXXXXX)"
 export DEEPSEEK_HARNESS_VALIDATE_STARTUP=0
 export DEEPSEEK_HARNESS_STARTUP_ATTEMPTS=2
+export DEEPSEEK_HARNESS_TESTING=1
 
 cleanup() { /bin/rm -rf "$TEST_ROOT"; }
 trap cleanup EXIT INT TERM HUP
@@ -87,16 +88,16 @@ scenario_preserves_old_external_dsh() {
   [[ ! -e "$support/runtime/current/bin/node" ]]
 }
 
-scenario_skips_a_hanging_recorded_dsh() {
-  local scenario="$TEST_ROOT/hanging-dsh"
-  local home="$scenario/home" bin_dir="$scenario/bin" support="$scenario/support" hanging="$scenario/hanging-dsh"
+scenario_skips_a_failed_recorded_dsh() {
+  local scenario="$TEST_ROOT/failed-dsh"
+  local home="$scenario/home" bin_dir="$scenario/bin" support="$scenario/support" failed="$scenario/failed-dsh"
   /bin/mkdir -p "$home/.local/bin" "$support"
   make_node_and_npm "$bin_dir" v22.19.0
-  /usr/bin/printf '%s\n' '#!/usr/bin/perl' 'sleep 30;' > "$hanging"
-  /bin/chmod 755 "$hanging"
+  /usr/bin/printf '%s\n' '#!/bin/zsh' 'exit 124' > "$failed"
+  /bin/chmod 755 "$failed"
   make_dsh "$home/.local/bin/dsh" 0.1.1
   /usr/bin/plutil -create xml1 "$support/environment.plist"
-  /usr/bin/plutil -insert dshPath -string "$hanging" "$support/environment.plist"
+  /usr/bin/plutil -insert dshPath -string "$failed" "$support/environment.plist"
   HOME="$home" PATH="$bin_dir:/usr/bin:/bin:/usr/sbin:/sbin" DEEPSEEK_HARNESS_SUPPORT_DIR="$support" \
     DEEPSEEK_HARNESS_LANGUAGE=en DEEPSEEK_HARNESS_DISCOVERY_TIMEOUT=1 "$INSTALLER" >/dev/null
   [[ "$(plist_value "$support/environment.plist" dshPath)" == "$home/.local/bin/dsh" ]]
@@ -155,7 +156,7 @@ scenario_failed_startup_validation_preserves_runtime() {
 scenario_reuses_compatible_dsh
 scenario_reuses_node_and_installs_only_dsh
 scenario_preserves_old_external_dsh
-scenario_skips_a_hanging_recorded_dsh
+scenario_skips_a_failed_recorded_dsh
 scenario_explicit_update_switches_to_managed_dsh
 scenario_rejects_incompatible_recorded_node
 scenario_failed_startup_validation_preserves_runtime

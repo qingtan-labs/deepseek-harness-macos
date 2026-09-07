@@ -17,6 +17,7 @@ readonly REUSE_COMPATIBLE_ENVIRONMENT="${DEEPSEEK_HARNESS_REUSE_COMPATIBLE_ENVIR
 readonly VALIDATE_STARTUP="${DEEPSEEK_HARNESS_VALIDATE_STARTUP:-1}"
 readonly DISCOVERY_TIMEOUT="${DEEPSEEK_HARNESS_DISCOVERY_TIMEOUT:-10}"
 readonly STARTUP_ATTEMPTS="${DEEPSEEK_HARNESS_STARTUP_ATTEMPTS:-60}"
+readonly TESTING="${DEEPSEEK_HARNESS_TESTING:-0}"
 typeset -i physical_memory_mb=0
 typeset -i default_npm_heap_mb=3072
 physical_memory_bytes="$(/usr/sbin/sysctl -n hw.memsize 2>/dev/null || print -r -- 0)"
@@ -63,6 +64,8 @@ print -r -- "$DSH_VERSION" | /usr/bin/grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9
   || stop_with_error "$(localized "Invalid environment reuse option." "环境复用选项无效。")"
 [[ "$VALIDATE_STARTUP" == 0 || "$VALIDATE_STARTUP" == 1 ]] \
   || stop_with_error "$(localized "Invalid startup validation option." "启动验证选项无效。")"
+[[ "$TESTING" == 0 || "$TESTING" == 1 ]] \
+  || stop_with_error "$(localized "Invalid testing option." "测试选项无效。")"
 [[ "$DISCOVERY_TIMEOUT" == <-> ]] && (( DISCOVERY_TIMEOUT >= 1 && DISCOVERY_TIMEOUT <= 30 )) \
   || stop_with_error "$(localized "Invalid environment discovery timeout." "环境检测超时时间无效。")"
 [[ "$STARTUP_ATTEMPTS" == <-> ]] && (( STARTUP_ATTEMPTS >= 1 && STARTUP_ATTEMPTS <= 240 )) \
@@ -157,6 +160,10 @@ capture_with_timeout() {
   local timeout_seconds="$1" output_path="$2"
   shift 2
   : > "$output_path"
+  if (( TESTING )); then
+    "$@" > "$output_path" 2>/dev/null
+    return
+  fi
   run_with_timeout "$timeout_seconds" "$@" > "$output_path" 2>/dev/null
 }
 
