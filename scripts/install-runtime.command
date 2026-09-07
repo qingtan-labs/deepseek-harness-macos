@@ -124,14 +124,13 @@ run_with_timeout() {
     use strict;
     use warnings;
     use Errno qw(EINTR);
-    use POSIX qw(setpgid);
     my $timeout = shift @ARGV;
     my $pid = fork();
     die "fork failed: $!\n" unless defined $pid;
-    if ($pid == 0) { setpgid(0, 0); exec @ARGV or exit 127; }
+    if ($pid == 0) { exec @ARGV or exit 127; }
     my $timed_out = 0;
-    $SIG{ALRM} = sub { $timed_out = 1; kill "TERM", -$pid; };
-    $SIG{TERM} = sub { kill "TERM", -$pid; waitpid($pid, 0); exit 130; };
+    $SIG{ALRM} = sub { $timed_out = 1; kill "TERM", $pid; };
+    $SIG{TERM} = sub { kill "TERM", $pid; waitpid($pid, 0); exit 130; };
     alarm $timeout;
     my $status = 0;
     while (1) {

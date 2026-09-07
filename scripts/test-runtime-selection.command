@@ -91,7 +91,7 @@ scenario_skips_a_hanging_recorded_dsh() {
   local home="$scenario/home" bin_dir="$scenario/bin" support="$scenario/support" hanging="$scenario/hanging-dsh"
   /bin/mkdir -p "$home/.local/bin" "$support"
   make_node_and_npm "$bin_dir" v22.19.0
-  /usr/bin/printf '%s\n' '#!/bin/zsh' '/bin/sleep 30' > "$hanging"
+  /usr/bin/printf '%s\n' '#!/usr/bin/perl' 'sleep 30;' > "$hanging"
   /bin/chmod 755 "$hanging"
   make_dsh "$home/.local/bin/dsh" 0.1.1
   /usr/bin/plutil -create xml1 "$support/environment.plist"
