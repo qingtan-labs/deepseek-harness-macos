@@ -1,44 +1,33 @@
-# DeepSeek Harness for macOS 1.0.1
+# DeepSeek Harness for macOS 1.0.2
 
-This maintenance release makes the menu bar service indicator unambiguous and refreshes it as soon as the whale menu opens, while preserving the complete bilingual Dock, browser, in-app, and runtime-management experience.
+This reliability release prevents an incompatible DSH or Node.js update from replacing a working managed runtime.
 
-## Highlights
+## Fixed
 
-- Reuses an existing Harness page or window whenever the selected browser can be inspected.
-- Remembers browser or in-app mode and stops prompting on every Dock click.
-- Keeps the menu bar controller alive when the in-app window closes.
-- Distinguishes a stopped service with a gray hollow circle, refreshes state whenever the whale menu opens, and reserves a solid green circle for a verified healthy listener.
-- Checks both the port listener and HTTP response before reporting service health.
-- Protects unrelated processes on port 3080 and confirms actions for externally started services.
-- Reuses a working user-installed DSH `0.1.1-rc.2` or later without replacing it.
-- Reuses Node.js 20+ and npm when only DSH is missing; downloads verified private Node.js 22.21.1 only when the local runtime is missing, broken, or too old.
-- Records selected absolute paths so Finder, Dock, and login launches work with Homebrew, nvm, fnm, Volta, asdf, mise, nodenv, MacPorts, bun, and pnpm environments.
-- Offers one-click isolated Node.js and DSH fallback when a clean Mac has no compatible Harness runtime.
-- Uses a device-adaptive 3–8 GB Node.js heap limit for the large DSH dependency install, with a specific bilingual recovery message if memory is exhausted.
-- Adds **Service → Check for DSH Updates…**. It checks npm only when selected and installs a newer `latest` version only after confirmation.
-- Uses `@deepseek-ai/dsh@0.1.1-rc.2` as the tested exact default while still allowing an explicit newer-version opt in.
-- Prevents the managed DSH service from opening an extra browser tab and recovers stale plugin-loader manifests before presentation.
-- Supports English and Simplified Chinese and follows macOS Light/Dark appearance.
-- Ships as one standard DMG with a universal app for Apple silicon and Intel Macs.
+- Enforces the full reusable Node.js minimum of `22.19.0` instead of accepting every Node.js 20+ or 22.x build. This prevents DSH dependencies that require Node.js 22.19+ from being launched with Node.js 22.14.
+- Validates a staged DSH update against the current Profile before activation. The candidate must start, return the local Harness page, and serve every advertised plugin asset.
+- Keeps the current managed DSH selected when startup validation detects incompatible plugins or Profile APIs.
+- Recognizes the common private DSH Node runtime path in addition to Homebrew, npm, nvm, fnm, Volta, asdf, mise, nodenv, and MacPorts locations.
+
+## Compatibility baseline
+
+- macOS 13 or later; Apple silicon and Intel.
+- Reusable Node.js: `22.19.0` or later.
+- Private fallback Node.js: `22.21.1`.
+- Tested DSH clean-install and recovery baseline: `0.1.1-rc.2`.
+
+The menu's DSH update check remains user initiated. Newer npm `latest` versions are never silently installed, and a candidate that cannot start with the current Profile is not activated.
 
 ## Installation
 
-Download `DeepSeek-Harness-1.0.1-macOS.dmg` from this release, open it, and drag **DeepSeek Harness** onto **Applications**. Then Control-click the installed app and choose **Open**.
+Download `DeepSeek-Harness-1.0.2-macOS.dmg`, open it, and drag **DeepSeek Harness** onto **Applications**. Replace an earlier copy when prompted. Preferences, the selected environment record, and `~/.dsh` data remain outside the app bundle.
 
-Requires macOS 13 or later. A network connection is needed only if compatible local components are missing or when an update is confirmed. Existing external DSH/Node installations and `~/.dsh` data are not modified. Managed runtime changes are staged and verified before activation.
-
-There is no silent background updater. DSH version checks and updates are initiated by the user from the Service menu.
-
-## Signing notice
-
-This build is ad-hoc signed and not Apple-notarized. macOS can show an unidentified-developer warning. Use Control-click **Open** or **System Settings → Privacy & Security → Open Anyway**. Do not disable Gatekeeper globally.
+This build is ad-hoc signed and not Apple-notarized. Control-click the installed app and choose **Open**, or use **System Settings → Privacy & Security → Open Anyway**. Do not disable Gatekeeper globally.
 
 ## Integrity
 
-Verify the downloaded DMG with the optional checksum asset:
-
 ```sh
-shasum -a 256 -c DeepSeek-Harness-1.0.1-macOS.dmg.sha256
+shasum -a 256 -c DeepSeek-Harness-1.0.2-macOS.dmg.sha256
 ```
 
 This is an independent community project and is not affiliated with DeepSeek.

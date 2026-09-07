@@ -3,7 +3,7 @@
 ## Standard DMG installation
 
 1. Download the DMG and optional `.sha256` file from the same GitHub Release.
-2. Optionally verify it with `shasum -a 256 -c DeepSeek-Harness-1.0.1-macOS.dmg.sha256`.
+2. Optionally verify it with `shasum -a 256 -c DeepSeek-Harness-1.0.2-macOS.dmg.sha256`.
 3. Open the DMG and drag **DeepSeek Harness** onto **Applications**.
 4. Control-click the installed app, choose **Open**, and confirm the prompt.
 
@@ -18,7 +18,7 @@ The app evaluates the current device before downloading anything:
 | Existing state | Result |
 | --- | --- |
 | Working DSH `0.1.1-rc.2` or later | Reuse that DSH and its environment; download nothing |
-| No compatible DSH; working Node.js 20+ and npm | Reuse Node/npm and install only an isolated app-managed DSH |
+| No compatible DSH; working Node.js 22.19.0+ and npm | Reuse Node/npm and install only an isolated app-managed DSH |
 | DSH missing/broken/too old and Node missing/broken/too old | Install verified private Node.js 22.21.1, then isolated DSH |
 | Existing app-managed environment already matches | Reuse it without reinstalling |
 
@@ -26,7 +26,7 @@ Discovery covers the saved absolute path, the launch `PATH`, and common Homebrew
 
 External DSH, Node.js, and npm files are never overwritten or removed. When the app must install a fallback, it uses only `~/Library/Application Support/DeepSeek Harness`. DSH profiles, sessions, plugins, and credentials under `~/.dsh` are never replaced.
 
-Candidate managed runtimes are staged and verified before activation. A failed transaction restores the previous managed copy. A clean DSH install can take several minutes; network operations have bounded timeouts and retries. Because DSH has a large dependency graph, npm runs with a physical-memory-aware Node.js heap limit: 3 GB on smaller Macs, scaling up to 8 GB on higher-memory devices.
+Candidate managed runtimes are staged and verified before activation. DSH must start with the current Profile and serve every plugin asset advertised in its boot manifest before it can replace an existing managed copy. A failed transaction leaves the previous managed runtime active. A clean DSH install can take several minutes; network operations have bounded timeouts and retries. Because DSH has a large dependency graph, npm runs with a physical-memory-aware Node.js heap limit: 3 GB on smaller Macs, scaling up to 8 GB on higher-memory devices.
 
 The default DSH version is exact for a clean fallback so the new installation begins with the combination tested for this controller. It is also the minimum reused DSH baseline. To opt in to a newer npm `latest` version later, choose **Service → Check for DSH Updates…**, review the compatibility notice, and confirm. The app does not silently update DSH.
 
@@ -36,7 +36,7 @@ Maintainers can still run `scripts/install.command` from a source checkout or le
 
 ## Gatekeeper
 
-The 1.0.1 release is ad-hoc signed rather than Developer ID signed and notarized. Control-click the installed app and choose **Open** for the first launch. If macOS blocks it, use **System Settings → Privacy & Security → Open Anyway**. Do not disable Gatekeeper globally.
+The 1.0.2 release is ad-hoc signed rather than Developer ID signed and notarized. Control-click the installed app and choose **Open** for the first launch. If macOS blocks it, use **System Settings → Privacy & Security → Open Anyway**. Do not disable Gatekeeper globally.
 
 ## Uninstall
 

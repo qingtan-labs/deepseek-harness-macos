@@ -16,7 +16,7 @@
 <p align="center"><a href="README.md">English（默认）</a> · <strong>简体中文</strong></p>
 
 <p align="center">
-  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.1-macOS.dmg"><strong>下载 DeepSeek Harness 1.0.1 DMG</strong></a>
+  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.2-macOS.dmg"><strong>下载 DeepSeek Harness 1.0.2 DMG</strong></a>
 </p>
 
 DeepSeek Harness macOS 版是社区开发的辅助应用，把 Dock 启动入口、菜单栏控制、本地服务管理和可选的应用内窗口合并为一个程序。点击 Dock 时会优先聚焦已有 Harness 网页或窗口，而不是每次都故意新开一个标签页。
@@ -63,7 +63,7 @@ Dock 图标和菜单栏小鲸鱼控制同一个应用；菜单同时提供 DSH �
 - **先复用、再新建：** 浏览器模式会在 Safari 和主流 Chromium 浏览器中查找已有本地标签；应用内模式会恢复同一个窗口和网页会话。
 - **记住我的选择：** 浏览器或应用内窗口都可以保存为默认方式，并随时在菜单中修改。
 - **理解服务状态：** 页面与插件资源预检、旧加载清单自动恢复、端口冲突保护和服务所有权记录，可提升启动可靠性并避免误停其他进程。
-- **现有环境优先：** 用户已安装且可运行、不低于验证基线的 DSH 会原样复用；只有 DSH 缺失时会优先复用 Node.js 20+ 与 npm，确有必要时才下载私有 Node.js。
+- **现有环境优先：** 用户已安装且可运行、不低于验证基线的 DSH 会原样复用；只有 DSH 缺失时会优先复用 Node.js 22.19.0+ 与 npm，确有必要时才下载私有 Node.js。
 - **全新 Mac 也能使用：** 没有兼容环境时，应用会为当前用户配置隔离的 Node.js 与 DSH，全程无需管理员权限。
 - **更新由你决定：** “服务”菜单可检查 npm 官方 `latest` 版本，并在你确认后才更新；不会后台静默更新 DSH。
 - **登录时静默启动：** 使用 macOS 登录项，只启动菜单栏控制器，不自动弹出页面。
@@ -78,7 +78,7 @@ Dock 图标和菜单栏小鲸鱼控制同一个应用；菜单同时提供 DSH �
 | Mac | Apple 芯片或 Intel |
 | 网络 | 仅在缺少兼容组件或用户确认更新时需要 |
 | 本地地址 | `http://127.0.0.1:3080` |
-| 可复用 Node.js | 20 或更高版本 |
+| 可复用 Node.js | 22.19.0 或更高版本 |
 | 私有备用 Node.js | `22.21.1` |
 | 可复用 DSH | 可正常运行的 `0.1.1-rc.2` 或更高版本 |
 | 全新安装验证版本 | `@deepseek-ai/dsh@0.1.1-rc.2` |
@@ -92,13 +92,13 @@ Dock 图标和菜单栏小鲸鱼控制同一个应用；菜单同时提供 DSH �
 
 应用会先发现并运行现有兼容的 DSH/Node，包括 Homebrew、npm、nvm、fnm、Volta、asdf、mise、nodenv、MacPorts、bun 与 pnpm 等常见位置。选定的绝对路径会被记录，因此以后从 Finder、Dock 或登录项启动时不依赖交互式终端的 `PATH`。应用不会修改外部 DSH 或 Node。
 
-只有 DSH 缺失、损坏或低于验证基线时，应用才补装隔离的 DSH；只要现有 Node.js 20+ 与 npm 可用，就不重复安装 Node。Node 缺失、损坏或版本过低时，才从 `nodejs.org` 下载并校验私有 Node.js 22.21.1。`~/.dsh` 下的 Profile、会话、插件与凭据不会被替换。全新配置可能需要数分钟，请保持应用运行直到完成。安装期间会根据设备物理内存在 3–8 GB 之间设置 Node.js 堆内存上限，不再依赖 npm 较小的默认值。
+只有 DSH 缺失、损坏或低于验证基线时，应用才补装隔离的 DSH；只要现有 Node.js 22.19.0+ 与 npm 可用，就不重复安装 Node。Node 缺失、损坏或版本过低时，才从 `nodejs.org` 下载并校验私有 Node.js 22.21.1。`~/.dsh` 下的 Profile、会话、插件与凭据不会被替换。全新配置可能需要数分钟，请保持应用运行直到完成。安装期间会根据设备物理内存在 3–8 GB 之间设置 Node.js 堆内存上限，不再依赖 npm 较小的默认值。
 
-默认版本保持精确，是为了让每次全新安装都从本控制器及插件加载行为已经验证过的同一个顶层 DSH 版本开始，并不代表永远锁死。选择**服务 → 检查 DSH 更新…**即可与 npm `latest` 比较，确认版本变化后再升级。安装失败时会保留此前可用的托管运行时。
+默认版本保持精确，是为了让每次全新安装都从本控制器及插件加载行为已经验证过的同一个顶层 DSH 版本开始，并不代表永远锁死。选择**服务 → 检查 DSH 更新…**即可与 npm `latest` 比较，确认版本变化后再升级。候选版本必须先用当前 Profile 成功启动，并通过所有已声明插件资源检查，才会真正替换现有托管运行时。
 
-### 1.0.1 的 Gatekeeper 提示
+### 1.0.2 的 Gatekeeper 提示
 
-1.0.1 使用 ad-hoc 临时签名，尚未经过 Apple 公证，因此 macOS 可能提示“无法验证开发者”。请在 Applications 中按住 Control 点击 App 并选择**打开**；如果第一次已被拦截，也可以前往**系统设置 → 隐私与安全性 → 仍要打开**。
+1.0.2 使用 ad-hoc 临时签名，尚未经过 Apple 公证，因此 macOS 可能提示“无法验证开发者”。请在 Applications 中按住 Control 点击 App 并选择**打开**；如果第一次已被拦截，也可以前往**系统设置 → 隐私与安全性 → 仍要打开**。
 
 不要全局关闭 Gatekeeper。未来需要 Apple Developer ID 和公证，才能消除首次运行提示。
 
@@ -107,7 +107,7 @@ Dock 图标和菜单栏小鲸鱼控制同一个应用；菜单同时提供 DSH �
 下载 DMG 旁边可选的 `.sha256` 文件，保持两者位于同一目录，然后执行：
 
 ```sh
-shasum -a 256 -c DeepSeek-Harness-1.0.1-macOS.dmg.sha256
+shasum -a 256 -c DeepSeek-Harness-1.0.2-macOS.dmg.sha256
 ```
 
 ## 日常使用

@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.1-macOS.dmg"><strong>Download the DeepSeek Harness 1.0.1 DMG</strong></a>
+  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.2-macOS.dmg"><strong>Download the DeepSeek Harness 1.0.2 DMG</strong></a>
 </p>
 
 DeepSeek Harness for macOS is a community-built companion that combines the Dock launcher, menu bar controls, local service management, and an optional in-app window. Clicking the Dock icon focuses an existing Harness page or window whenever possible; it does not deliberately create another tab every time.
@@ -69,7 +69,7 @@ The native WebKit window keeps one local session. Closing the window does not qu
 - **Reuse before opening.** Browser mode checks supported Safari and Chromium-family browsers for an existing local Harness tab. In-app mode restores the same window and web session.
 - **Remember my choice.** Browser or in-app mode can be saved as the default and changed from the menu at any time.
 - **Service-aware actions.** Page and plugin-asset health checks, stale-loader recovery, port-conflict protection, and ownership records keep startup reliable without stopping unrelated processes.
-- **Existing environment first.** A working user-installed DSH at or above the tested baseline is reused as-is. If only DSH is missing, an existing Node.js 20+ and npm are reused; private Node.js is downloaded only when required.
+- **Existing environment first.** A working user-installed DSH at or above the tested baseline is reused as-is. If only DSH is missing, an existing Node.js 22.19.0+ and npm are reused; private Node.js is downloaded only when required.
 - **Works on a clean Mac.** When no compatible environment exists, the app can set up a private, per-user Node.js and DSH runtime without administrator access.
 - **Updates stay under your control.** The Service menu can check the official npm `latest` version and install it only after confirmation. There are no silent background DSH updates.
 - **Quiet login startup.** The macOS Login Items helper starts the menu bar controller without opening a page.
@@ -84,7 +84,7 @@ The native WebKit window keeps one local session. Closing the window does not qu
 | Mac | Apple silicon or Intel |
 | Network | Required only when compatible local components are missing or for a confirmed update |
 | Local endpoint | `http://127.0.0.1:3080` |
-| Reusable Node.js | Version 20 or later |
+| Reusable Node.js | Version 22.19.0 or later |
 | Private fallback Node.js | `22.21.1` |
 | Reusable DSH | Working version `0.1.1-rc.2` or later |
 | Tested clean-install DSH | `@deepseek-ai/dsh@0.1.1-rc.2` |
@@ -98,13 +98,13 @@ The native WebKit window keeps one local session. Closing the window does not qu
 
 The app first discovers and runs compatible existing DSH/Node installations, including common Homebrew, npm, nvm, fnm, Volta, asdf, mise, nodenv, MacPorts, bun, and pnpm locations. It records the selected absolute paths so a later Finder, Dock, or login launch does not depend on an interactive shell's `PATH`. It never modifies an external DSH or Node installation.
 
-If DSH is missing, broken, or older than the tested baseline, the app installs only an isolated DSH copy. It reuses a working Node.js 20+ with npm; only a missing, broken, or older Node causes the verified private Node.js 22.21.1 download. Profiles, sessions, plugins, and credentials under `~/.dsh` are never replaced. A clean setup can take several minutes because DSH has a large dependency tree; keep the app open until completion. During that install, the app selects a 3–8 GB Node.js heap limit from the Mac's physical memory instead of relying on npm's smaller default.
+If DSH is missing, broken, or older than the tested baseline, the app installs only an isolated DSH copy. It reuses a working Node.js 22.19.0+ with npm; only a missing, broken, or older Node causes the verified private Node.js 22.21.1 download. Profiles, sessions, plugins, and credentials under `~/.dsh` are never replaced. A clean setup can take several minutes because DSH has a large dependency tree; keep the app open until completion. During that install, the app selects a 3–8 GB Node.js heap limit from the Mac's physical memory instead of relying on npm's smaller default.
 
-The tested default is intentionally exact so every fresh install starts from the same top-level DSH version validated against this controller and its plugin-loading behavior. It is a compatibility baseline, not a permanent lock: choose **Service → Check for DSH Updates…** to compare against npm `latest`, review the version change, and update explicitly. A failed install keeps the previously working managed runtime.
+The tested default is intentionally exact so every fresh install starts from the same top-level DSH version validated against this controller and its plugin-loading behavior. It is a compatibility baseline, not a permanent lock: choose **Service → Check for DSH Updates…** to compare against npm `latest`, review the version change, and update explicitly. Before activation, an update candidate must start with the current Profile and serve every advertised plugin asset; a failed validation keeps the previously working managed runtime.
 
-### Gatekeeper notice for 1.0.1
+### Gatekeeper notice for 1.0.2
 
-Version 1.0.1 is ad-hoc signed and is not Apple-notarized. macOS may therefore show an unidentified-developer warning. Control-click the app in Applications and choose **Open**, or go to **System Settings → Privacy & Security → Open Anyway** after macOS blocks the first attempt.
+Version 1.0.2 is ad-hoc signed and is not Apple-notarized. macOS may therefore show an unidentified-developer warning. Control-click the app in Applications and choose **Open**, or go to **System Settings → Privacy & Security → Open Anyway** after macOS blocks the first attempt.
 
 Do not disable Gatekeeper globally. A future release requires an Apple Developer ID and notarization to remove this first-run warning.
 
@@ -113,7 +113,7 @@ Do not disable Gatekeeper globally. A future release requires an Apple Developer
 Download the optional `.sha256` file beside the DMG, keep both files in the same directory, then run:
 
 ```sh
-shasum -a 256 -c DeepSeek-Harness-1.0.1-macOS.dmg.sha256
+shasum -a 256 -c DeepSeek-Harness-1.0.2-macOS.dmg.sha256
 ```
 
 ## Everyday use

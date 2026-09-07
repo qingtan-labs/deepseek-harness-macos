@@ -2,6 +2,14 @@
 
 All notable changes are documented here. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.2] - 2026-09-07
+
+### Fixed
+
+- Enforce a full reusable Node.js minimum of `22.19.0`, preventing Node.js 22.14 from being selected for DSH dependencies that require 22.19 or later.
+- Start each staged managed DSH candidate with the current Profile and verify its local page plus every advertised plugin asset before activation. An incompatible update now leaves the previous managed runtime selected.
+- Detect the common private DSH Node runtime path when evaluating existing environments.
+
 ## [1.0.1] - 2026-09-03
 
 ### Fixed
@@ -39,5 +47,6 @@ All notable changes are documented here. This project follows [Semantic Versioni
 
 - The 1.0.0 binary is ad-hoc signed and not Apple-notarized. See the README for the safe first-open flow.
 
+[1.0.2]: https://github.com/qingtan-labs/deepseek-harness-macos/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/qingtan-labs/deepseek-harness-macos/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/qingtan-labs/deepseek-harness-macos/releases/tag/v1.0.0

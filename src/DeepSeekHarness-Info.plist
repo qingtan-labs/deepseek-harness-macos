@@ -11,11 +11,11 @@
   <array><string>en</string><string>zh-Hans</string></array>
   <key>CFBundleName</key><string>DeepSeek Harness</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>1.0.1</string>
-  <key>CFBundleVersion</key><string>10</string>
+  <key>CFBundleShortVersionString</key><string>1.0.2</string>
+  <key>CFBundleVersion</key><string>11</string>
   <key>DSHRecommendedVersion</key><string>0.1.1-rc.2</string>
   <key>NodeRuntimeVersion</key><string>22.21.1</string>
-  <key>NodeMinimumMajorVersion</key><integer>20</integer>
+  <key>NodeMinimumVersion</key><string>22.19.0</string>
   <key>LSMinimumSystemVersion</key><string>13.0</string>
   <key>LSUIElement</key><true/>
   <key>LSMultipleInstancesProhibited</key><true/>

@@ -8,12 +8,13 @@ IFS=$'\n\t'
 umask 077
 
 readonly DEFAULT_NODE_VERSION='22.21.1'
-readonly DEFAULT_MIN_NODE_MAJOR='20'
+readonly DEFAULT_MIN_NODE_VERSION='22.19.0'
 readonly DEFAULT_DSH_VERSION='0.1.1-rc.2'
 readonly NODE_VERSION="${DEEPSEEK_HARNESS_NODE_VERSION:-$DEFAULT_NODE_VERSION}"
-readonly MIN_NODE_MAJOR="${DEEPSEEK_HARNESS_MIN_NODE_MAJOR:-$DEFAULT_MIN_NODE_MAJOR}"
+readonly MIN_NODE_VERSION="${DEEPSEEK_HARNESS_MIN_NODE_VERSION:-$DEFAULT_MIN_NODE_VERSION}"
 readonly DSH_VERSION="${DEEPSEEK_HARNESS_DSH_VERSION:-$DEFAULT_DSH_VERSION}"
 readonly REUSE_COMPATIBLE_ENVIRONMENT="${DEEPSEEK_HARNESS_REUSE_COMPATIBLE_ENVIRONMENT:-1}"
+readonly VALIDATE_STARTUP="${DEEPSEEK_HARNESS_VALIDATE_STARTUP:-1}"
 readonly DISCOVERY_TIMEOUT="${DEEPSEEK_HARNESS_DISCOVERY_TIMEOUT:-10}"
 typeset -i physical_memory_mb=0
 typeset -i default_npm_heap_mb=3072
@@ -34,6 +35,7 @@ readonly RUNTIME_DIR="$SUPPORT_DIR/runtime/current"
 readonly NPM_PREFIX="$SUPPORT_DIR/npm"
 readonly ENVIRONMENT_RECORD="$SUPPORT_DIR/environment.plist"
 readonly LOCK_DIR="$SUPPORT_DIR/.runtime-install.lock"
+readonly DSH_WEB_ADDRESS='http://127.0.0.1:3080/'
 
 language_hint="${DEEPSEEK_HARNESS_LANGUAGE:-}"
 if [[ -z "$language_hint" ]]; then
@@ -52,12 +54,14 @@ stop_with_error() { print -u2; print -u2 -r -- "$(localized "Runtime installatio
 
 print -r -- "$NODE_VERSION" | /usr/bin/grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' \
   || stop_with_error "$(localized "Invalid Node.js version." "Node.js 版本格式无效。")"
-print -r -- "$MIN_NODE_MAJOR" | /usr/bin/grep -Eq '^[0-9]+$' \
-  || stop_with_error "$(localized "Invalid minimum Node.js major version." "Node.js 最低主版本格式无效。")"
+print -r -- "$MIN_NODE_VERSION" | /usr/bin/grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' \
+  || stop_with_error "$(localized "Invalid minimum Node.js version." "Node.js 最低版本格式无效。")"
 print -r -- "$DSH_VERSION" | /usr/bin/grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$' \
   || stop_with_error "$(localized "Invalid DSH version." "DSH 版本格式无效。")"
 [[ "$REUSE_COMPATIBLE_ENVIRONMENT" == 0 || "$REUSE_COMPATIBLE_ENVIRONMENT" == 1 ]] \
   || stop_with_error "$(localized "Invalid environment reuse option." "环境复用选项无效。")"
+[[ "$VALIDATE_STARTUP" == 0 || "$VALIDATE_STARTUP" == 1 ]] \
+  || stop_with_error "$(localized "Invalid startup validation option." "启动验证选项无效。")"
 [[ "$DISCOVERY_TIMEOUT" == <-> ]] && (( DISCOVERY_TIMEOUT >= 1 && DISCOVERY_TIMEOUT <= 30 )) \
   || stop_with_error "$(localized "Invalid environment discovery timeout." "环境检测超时时间无效。")"
 [[ "$NPM_INSTALL_HEAP_MB" == <-> ]] && (( NPM_INSTALL_HEAP_MB >= 2048 && NPM_INSTALL_HEAP_MB <= 16384 )) \
@@ -88,11 +92,23 @@ print -r -- "$$" > "$LOCK_DIR/pid"
 
 temporary_dir="$(/usr/bin/mktemp -d "$SUPPORT_DIR/.runtime-install.XXXXXX")"
 typeset -i active_child_pid=0
-cleanup() {
+terminate_active_child() {
+  local attempt
   if (( active_child_pid > 0 )) && /bin/kill -0 "$active_child_pid" 2>/dev/null; then
     /bin/kill -TERM "$active_child_pid" 2>/dev/null || true
-    wait "$active_child_pid" 2>/dev/null || true
+    for attempt in {1..20}; do
+      /bin/kill -0 "$active_child_pid" 2>/dev/null || break
+      /bin/sleep 0.1
+    done
+    if /bin/kill -0 "$active_child_pid" 2>/dev/null; then
+      /bin/kill -KILL "$active_child_pid" 2>/dev/null || true
+    fi
   fi
+  (( active_child_pid > 0 )) && wait "$active_child_pid" 2>/dev/null || true
+  active_child_pid=0
+}
+cleanup() {
+  terminate_active_child
   /bin/rm -rf "$temporary_dir"
   /bin/rm -rf "$LOCK_DIR"
 }
@@ -102,21 +118,34 @@ trap abort_install INT TERM HUP
 
 run_with_timeout() {
   local timeout_seconds="$1"
-  local elapsed=0
   local command_status=0
   shift
-  "$@" &
+  /usr/bin/perl -e '
+    use strict;
+    use warnings;
+    use Errno qw(EINTR);
+    use POSIX qw(setpgid);
+    my $timeout = shift @ARGV;
+    my $pid = fork();
+    die "fork failed: $!\n" unless defined $pid;
+    if ($pid == 0) { setpgid(0, 0); exec @ARGV or exit 127; }
+    my $timed_out = 0;
+    $SIG{ALRM} = sub { $timed_out = 1; kill "TERM", -$pid; };
+    $SIG{TERM} = sub { kill "TERM", -$pid; waitpid($pid, 0); exit 130; };
+    alarm $timeout;
+    my $status = 0;
+    while (1) {
+      my $result = waitpid($pid, 0);
+      if ($result == $pid) { $status = $?; last; }
+      next if $! == EINTR;
+      exit 125;
+    }
+    alarm 0;
+    exit 124 if $timed_out;
+    exit(128 + ($status & 127)) if $status & 127;
+    exit($status >> 8);
+  ' "$timeout_seconds" "$@" &
   active_child_pid=$!
-  while /bin/kill -0 "$active_child_pid" 2>/dev/null; do
-    if (( elapsed >= timeout_seconds )); then
-      /bin/kill -TERM "$active_child_pid" 2>/dev/null || true
-      wait "$active_child_pid" 2>/dev/null || true
-      active_child_pid=0
-      return 124
-    fi
-    /bin/sleep 1
-    elapsed=$((elapsed + 1))
-  done
   if wait "$active_child_pid"; then command_status=0; else command_status=$?; fi
   active_child_pid=0
   return "$command_status"
@@ -221,6 +250,7 @@ for candidate in \
 done
 for candidate in \
   "$HOME/.local/bin/node" "$HOME/.volta/bin/node" "$HOME/.asdf/shims/node" "$HOME/.mise/shims/node" \
+  "$HOME/.local/opt/dsh-node-runtime/node_modules/node/bin/node" \
   "/opt/homebrew/bin/node" "/usr/local/bin/node" "/opt/local/bin/node"; do
   append_unique_executable node "$candidate"
 done
@@ -253,10 +283,7 @@ for candidate in "${node_candidates[@]}"; do
   else
     continue
   fi
-  candidate_major="${candidate_version#v}"
-  candidate_major="${candidate_major%%.*}"
-  [[ "$candidate_major" == <-> ]] || continue
-  (( candidate_major >= MIN_NODE_MAJOR )) || continue
+  version_at_least "$candidate_version" "$MIN_NODE_VERSION" || continue
   compatible_node_candidates+=("$candidate")
 done
 
@@ -290,7 +317,7 @@ write_environment_record() {
     || stop_with_error "$(localized "Could not save the selected runtime environment." "无法保存选定的运行环境。")"
 }
 
-if (( REUSE_COMPATIBLE_ENVIRONMENT )); then
+if (( REUSE_COMPATIBLE_ENVIRONMENT && ${#compatible_node_candidates} > 0 )); then
   candidate_index=0
   for candidate in "${dsh_candidates[@]}"; do
     candidate_index=$((candidate_index + 1))
@@ -399,6 +426,66 @@ else
   staged_version="$(PATH="${node_for_install:h}:$DISCOVERY_PATH" "$staged_dsh" --version 2>/dev/null | /usr/bin/tail -n 1 || true)"
   [[ "$staged_version" == "$DSH_VERSION" ]] \
     || stop_with_error "$(localized "DeepSeek Harness CLI version verification failed." "DeepSeek Harness CLI 版本校验失败。")"
+
+  if (( VALIDATE_STARTUP )); then
+    if /usr/sbin/lsof -nP -iTCP:3080 -sTCP:LISTEN >/dev/null 2>&1; then
+      stop_with_error "$(localized "Port 3080 became busy before the DSH startup validation." "DSH 启动验证前 3080 端口已被占用。")"
+    fi
+    say_note "Validating DSH ${DSH_VERSION} with the current Profile" "使用当前 Profile 验证 DSH ${DSH_VERSION}"
+    startup_log="$temporary_dir/dsh-startup-check.log"
+    startup_html="$temporary_dir/dsh-startup-check.html"
+    startup_assets="$temporary_dir/dsh-startup-assets.txt"
+    /usr/bin/env PATH="${node_for_install:h}:$DISCOVERY_PATH" "$staged_dsh" web --no-open \
+      > "$startup_log" 2>&1 &
+    active_child_pid=$!
+    typeset -i startup_attempts=0
+    typeset -i startup_ready=0
+    while (( startup_attempts < 120 )); do
+      if ! /bin/kill -0 "$active_child_pid" 2>/dev/null; then break; fi
+      if /usr/bin/curl --fail --silent --show-error --max-time 2 "$DSH_WEB_ADDRESS" -o "$startup_html" 2>/dev/null; then
+        startup_ready=1
+        break
+      fi
+      /bin/sleep 0.5
+      startup_attempts=$((startup_attempts + 1))
+    done
+    if (( startup_ready )); then
+      if ! "$node_for_install" -e '
+        const fs = require("node:fs");
+        const html = fs.readFileSync(process.argv[1], "utf8");
+        const marker = "globalThis[\"__DSH_BOOT__\"] = ";
+        const start = html.indexOf(marker);
+        if (start < 0) process.exit(0);
+        const end = html.indexOf("</script>", start + marker.length);
+        if (end < 0) process.exit(2);
+        const payload = html.slice(start + marker.length, end).trim().replace(/;$/, "");
+        const boot = JSON.parse(payload);
+        for (const entry of Array.isArray(boot.entries) ? boot.entries : []) {
+          if (typeof entry?.url === "string" && entry.url.startsWith("/plugins/")) console.log(entry.url);
+        }
+      ' "$startup_html" > "$startup_assets" 2>> "$startup_log"; then
+        startup_ready=0
+      fi
+    fi
+    if (( startup_ready )); then
+      while IFS= read -r asset_path; do
+        [[ -n "$asset_path" ]] || continue
+        if ! /usr/bin/curl --head --fail --silent --show-error --max-time 3 \
+            "${DSH_WEB_ADDRESS%/}${asset_path}" >/dev/null 2>> "$startup_log"; then
+          print -r -- "Plugin asset failed validation: $asset_path" >> "$startup_log"
+          startup_ready=0
+          break
+        fi
+      done < "$startup_assets"
+    fi
+    terminate_active_child
+    if (( ! startup_ready )); then
+      print
+      print -r -- "--- DSH startup validation log ---"
+      /bin/cat "$startup_log" 2>/dev/null || true
+      stop_with_error "$(localized "DSH ${DSH_VERSION} could not start with the current Profile. The existing runtime was not replaced." "DSH ${DSH_VERSION} 无法使用当前 Profile 启动，未替换现有运行环境。")"
+    fi
+  fi
 fi
 
 readonly runtime_backup="$SUPPORT_DIR/runtime/.previous-$$"
@@ -453,9 +540,7 @@ if [[ "${active_node_version#v}" != <->.<->.<-> || "$active_dsh_version" != "$DS
   rollback_activation
   stop_with_error "$(localized "The activated runtime did not pass final verification. The previous managed runtime was restored." "启用后的运行环境未通过最终校验，已恢复此前的托管运行环境。")"
 fi
-active_node_major="${active_node_version#v}"
-active_node_major="${active_node_major%%.*}"
-if (( active_node_major < MIN_NODE_MAJOR )); then
+if ! version_at_least "$active_node_version" "$MIN_NODE_VERSION"; then
   rollback_activation
   stop_with_error "$(localized "The selected Node.js version is no longer supported. The previous managed runtime was restored." "选定的 Node.js 版本已不受支持，已恢复此前的托管运行环境。")"
 fi

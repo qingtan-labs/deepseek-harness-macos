@@ -6,6 +6,7 @@ IFS=$'\n\t'
 readonly ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd -P)"
 readonly INSTALLER="$ROOT_DIR/scripts/install-runtime.command"
 readonly TEST_ROOT="$(/usr/bin/mktemp -d /private/tmp/deepseek-harness-runtime-tests.XXXXXX)"
+export DEEPSEEK_HARNESS_VALIDATE_STARTUP=0
 
 cleanup() { /bin/rm -rf "$TEST_ROOT"; }
 trap cleanup EXIT INT TERM HUP
@@ -46,7 +47,7 @@ scenario_reuses_compatible_dsh() {
   local scenario="$TEST_ROOT/reuse-dsh"
   local home="$scenario/home" bin_dir="$scenario/bin" support="$scenario/support"
   /bin/mkdir -p "$home"
-  make_node_and_npm "$bin_dir" v22.14.0
+  make_node_and_npm "$bin_dir" v22.19.0
   make_dsh "$bin_dir/dsh" 0.1.1-rc.3
   HOME="$home" PATH="$bin_dir:/usr/bin:/bin:/usr/sbin:/sbin" DEEPSEEK_HARNESS_SUPPORT_DIR="$support" \
     DEEPSEEK_HARNESS_LANGUAGE=en "$INSTALLER" >/dev/null
@@ -59,7 +60,7 @@ scenario_reuses_node_and_installs_only_dsh() {
   local scenario="$TEST_ROOT/reuse-node"
   local home="$scenario/home" bin_dir="$scenario/bin" support="$scenario/support"
   /bin/mkdir -p "$home"
-  make_node_and_npm "$bin_dir" v20.19.6
+  make_node_and_npm "$bin_dir" v22.23.2
   HOME="$home" PATH="$bin_dir:/usr/bin:/bin:/usr/sbin:/sbin" DEEPSEEK_HARNESS_SUPPORT_DIR="$support" \
     DEEPSEEK_HARNESS_LANGUAGE=en DEEPSEEK_HARNESS_NPM_HEAP_MB=4096 "$INSTALLER" >/dev/null
   [[ "$(plist_value "$support/environment.plist" nodePath)" == "$bin_dir/node" ]]
@@ -74,7 +75,7 @@ scenario_preserves_old_external_dsh() {
   local home="$scenario/home" bin_dir="$scenario/bin" support="$scenario/support"
   local before after
   /bin/mkdir -p "$home"
-  make_node_and_npm "$bin_dir" v22.14.0
+  make_node_and_npm "$bin_dir" v22.19.0
   make_dsh "$bin_dir/dsh" 0.1.0
   before="$(/usr/bin/shasum -a 256 "$bin_dir/dsh" | /usr/bin/awk '{print $1}')"
   HOME="$home" PATH="$bin_dir:/usr/bin:/bin:/usr/sbin:/sbin" DEEPSEEK_HARNESS_SUPPORT_DIR="$support" \
@@ -89,7 +90,7 @@ scenario_skips_a_hanging_recorded_dsh() {
   local scenario="$TEST_ROOT/hanging-dsh"
   local home="$scenario/home" bin_dir="$scenario/bin" support="$scenario/support" hanging="$scenario/hanging-dsh"
   /bin/mkdir -p "$home/.local/bin" "$support"
-  make_node_and_npm "$bin_dir" v22.14.0
+  make_node_and_npm "$bin_dir" v22.19.0
   /usr/bin/printf '%s\n' '#!/bin/zsh' '/bin/sleep 30' > "$hanging"
   /bin/chmod 755 "$hanging"
   make_dsh "$home/.local/bin/dsh" 0.1.1
@@ -105,7 +106,7 @@ scenario_explicit_update_switches_to_managed_dsh() {
   local home="$scenario/home" bin_dir="$scenario/bin" support="$scenario/support"
   local before after
   /bin/mkdir -p "$home"
-  make_node_and_npm "$bin_dir" v22.14.0
+  make_node_and_npm "$bin_dir" v22.19.0
   make_dsh "$bin_dir/dsh" 0.1.1
   before="$(/usr/bin/shasum -a 256 "$bin_dir/dsh" | /usr/bin/awk '{print $1}')"
   HOME="$home" PATH="$bin_dir:/usr/bin:/bin:/usr/sbin:/sbin" DEEPSEEK_HARNESS_SUPPORT_DIR="$support" \
@@ -116,10 +117,46 @@ scenario_explicit_update_switches_to_managed_dsh() {
   [[ "$(plist_value "$support/environment.plist" nodePath)" == "$bin_dir/node" ]]
 }
 
+scenario_rejects_incompatible_recorded_node() {
+  local scenario="$TEST_ROOT/reject-old-node"
+  local home="$scenario/home" bin_dir="$scenario/bin" support="$scenario/support"
+  /bin/mkdir -p "$home" "$support/runtime/current/bin"
+  make_node_and_npm "$bin_dir" v22.14.0
+  make_node_and_npm "$support/runtime/current/bin" v22.21.1
+  /usr/bin/plutil -create xml1 "$support/environment.plist"
+  /usr/bin/plutil -insert nodePath -string "$bin_dir/node" "$support/environment.plist"
+  HOME="$home" PATH="$bin_dir:/usr/bin:/bin:/usr/sbin:/sbin" DEEPSEEK_HARNESS_SUPPORT_DIR="$support" \
+    DEEPSEEK_HARNESS_LANGUAGE=en "$INSTALLER" >/dev/null
+  [[ "$(plist_value "$support/environment.plist" nodePath)" == "$support/runtime/current/bin/node" ]]
+  [[ "$($support/runtime/current/bin/node --version)" == v22.21.1 ]]
+}
+
+scenario_failed_startup_validation_preserves_runtime() {
+  local scenario="$TEST_ROOT/failed-startup-validation"
+  local home="$scenario/home" bin_dir="$scenario/bin" support="$scenario/support" old_dsh
+  /bin/mkdir -p "$home" "$support"
+  make_node_and_npm "$bin_dir" v22.21.1
+  old_dsh="$support/npm/node_modules/.bin/dsh"
+  make_dsh "$old_dsh" 0.1.0
+  /usr/bin/plutil -create xml1 "$support/environment.plist"
+  /usr/bin/plutil -insert dshPath -string "$old_dsh" "$support/environment.plist"
+  /usr/bin/plutil -insert nodePath -string "$bin_dir/node" "$support/environment.plist"
+  /usr/bin/plutil -insert dshVersion -string 0.1.0 "$support/environment.plist"
+  if HOME="$home" PATH="$bin_dir:/usr/bin:/bin:/usr/sbin:/sbin" DEEPSEEK_HARNESS_SUPPORT_DIR="$support" \
+      DEEPSEEK_HARNESS_LANGUAGE=en DEEPSEEK_HARNESS_REUSE_COMPATIBLE_ENVIRONMENT=0 \
+      DEEPSEEK_HARNESS_VALIDATE_STARTUP=1 "$INSTALLER" >/dev/null 2>&1; then
+    return 1
+  fi
+  [[ "$($old_dsh --version)" == 0.1.0 ]]
+  [[ "$(plist_value "$support/environment.plist" dshVersion)" == 0.1.0 ]]
+}
+
 scenario_reuses_compatible_dsh
 scenario_reuses_node_and_installs_only_dsh
 scenario_preserves_old_external_dsh
 scenario_skips_a_hanging_recorded_dsh
 scenario_explicit_update_switches_to_managed_dsh
+scenario_rejects_incompatible_recorded_node
+scenario_failed_startup_validation_preserves_runtime
 
 print -r -- 'Runtime selection tests passed.'

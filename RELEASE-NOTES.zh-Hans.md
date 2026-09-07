@@ -1,42 +1,33 @@
-# DeepSeek Harness macOS 版 1.0.1
+# DeepSeek Harness macOS 版 1.0.2
 
-本次维护版本让菜单栏服务状态清晰且不会误判：停止态使用灰色空心点，并在打开小鲸鱼菜单时立即刷新；Dock、浏览器复用、应用内窗口和运行环境管理能力保持完整。
+这是一个可靠性更新，防止不兼容的 DSH 或 Node.js 更新替换原本可用的托管运行环境。
 
-## 主要特性
+## 已修复
 
-- 在所选浏览器可检测时，优先复用已有 Harness 页面或窗口。
-- 记住浏览器或应用内模式，点击 Dock 不再反复询问。
-- 关闭应用内窗口后，菜单栏控制器继续保留。
-- 服务停止时显示灰色空心点；打开小鲸鱼菜单会立即刷新状态，只有监听与健康检查通过时才显示绿色实心点。
-- 同时检查端口监听和 HTTP 响应，再判断服务是否健康。
-- 保护 3080 端口上的无关进程，并在操作外部启动的服务前确认。
-- 用户已安装且可运行的 DSH `0.1.1-rc.2` 或更高版本会原样复用，不会被覆盖。
-- 只有 DSH 缺失时优先复用 Node.js 20+ 与 npm；本地 Node 缺失、损坏或版本过低时才下载并校验私有 Node.js 22.21.1。
-- 记录选定的绝对路径，让 Finder、Dock 和登录项启动都能可靠使用 Homebrew、nvm、fnm、Volta、asdf、mise、nodenv、MacPorts、bun 与 pnpm 环境。
-- 全新 Mac 没有兼容 Harness 运行环境时，可一键安装隔离的 Node.js 与 DSH。
-- 安装较大的 DSH 依赖时，会根据设备内存在 3–8 GB 之间调整 Node.js 堆上限；若仍发生内存不足，会给出中英文专项恢复提示。
-- 新增**服务 → 检查 DSH 更新…**；仅在主动点击时查询 npm，并在确认后才安装新的 `latest` 版本。
-- 使用 `@deepseek-ai/dsh@0.1.1-rc.2` 作为已验证的精确默认版本，同时允许用户明确选择更新版本。
-- 托管服务不会在启动时额外打开浏览器标签；打开页面前会自动恢复过期的插件加载清单。
-- 支持英文和简体中文，自动跟随 macOS 亮色/深色外观。
-- 使用一个标准 DMG 分发，其中的通用 App 同时支持 Apple 芯片和 Intel Mac。
+- 将可复用 Node.js 的限制从简单的主版本判断改为完整的 `22.19.0` 最低版本，避免需要 Node.js 22.19+ 的 DSH 依赖被 Node.js 22.14 启动。
+- 托管 DSH 更新在正式启用前，必须先使用当前 Profile 完成启动、返回本地 Harness 页面，并通过所有已声明插件资源检查。
+- 如果检测到插件或 Profile API 不兼容，继续使用原有托管 DSH，不会把失败的候选版本设为当前环境。
+- 除 Homebrew、npm、nvm、fnm、Volta、asdf、mise、nodenv 和 MacPorts 外，新增常见 DSH 私有 Node 运行时路径检测。
+
+## 兼容基线
+
+- macOS 13 或更高版本，支持 Apple 芯片和 Intel Mac。
+- 可复用 Node.js：`22.19.0` 或更高版本。
+- 私有备用 Node.js：`22.21.1`。
+- 已验证 DSH 全新安装与恢复基线：`0.1.1-rc.2`。
+
+菜单中的 DSH 更新检查仍然只由用户主动触发。不会后台静默安装 npm `latest`；无法使用当前 Profile 启动的候选版本不会被启用。
 
 ## 安装
 
-从本 Release 下载 `DeepSeek-Harness-1.0.1-macOS.dmg`，打开后把 **DeepSeek Harness** 拖到 **Applications**，再按住 Control 点击已安装的 App 并选择**打开**。
+下载 `DeepSeek-Harness-1.0.2-macOS.dmg`，打开后把 **DeepSeek Harness** 拖到 **Applications**。出现提示时替换旧版本。偏好设置、已选运行环境记录和 `~/.dsh` 数据都在 App 包外，会继续保留。
 
-需要 macOS 13 或更高版本。只有缺少兼容本地组件或确认更新时才需要联网。现有外部 DSH/Node 和 `~/.dsh` 数据不会被修改；托管运行时替换会先暂存并验证，再正式启用。
-
-本版本不会后台静默更新。DSH 版本检查与更新都必须由用户从“服务”菜单主动触发。
-
-## 签名提示
-
-本版本使用 ad-hoc 临时签名，尚未经过 Apple 公证。macOS 可能提示“无法验证开发者”。请使用 Control 点击**打开**，或前往**系统设置 → 隐私与安全性 → 仍要打开**。不要全局关闭 Gatekeeper。
+此版本使用 ad-hoc 临时签名，尚未经过 Apple 公证。请按住 Control 点击已安装的 App 并选择**打开**，或前往**系统设置 → 隐私与安全性 → 仍要打开**。不要全局关闭 Gatekeeper。
 
 ## 完整性校验
 
 ```sh
-shasum -a 256 -c DeepSeek-Harness-1.0.1-macOS.dmg.sha256
+shasum -a 256 -c DeepSeek-Harness-1.0.2-macOS.dmg.sha256
 ```
 
-这是独立社区项目，不隶属于 DeepSeek。
+这是独立社区项目，与 DeepSeek 无隶属或合作关系。

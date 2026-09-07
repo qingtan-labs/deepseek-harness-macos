@@ -7,8 +7,8 @@ For every app release, update these together:
 - `CFBundleShortVersionString` and `CFBundleVersion` in `src/DeepSeekHarness-Info.plist`
 - `APP_VERSION` in `scripts/install.command`
 - `DEFAULT_NODE_VERSION` and `DEFAULT_DSH_VERSION` in `scripts/install-runtime.command`
-- `DEFAULT_MIN_NODE_MAJOR` in `scripts/install-runtime.command`
-- `NodeRuntimeVersion`, `NodeMinimumMajorVersion`, and `DSHRecommendedVersion` in `src/DeepSeekHarness-Info.plist`
+- `DEFAULT_MIN_NODE_VERSION` in `scripts/install-runtime.command`
+- `NodeRuntimeVersion`, `NodeMinimumVersion`, and `DSHRecommendedVersion` in `src/DeepSeekHarness-Info.plist`
 - `RELEASE_NAME` in `scripts/build-release.command`
 - `version`, runtime, DSH, and signing fields in `manifest.json`
 - README download links, compatibility table, changelog, and release notes
@@ -35,7 +35,7 @@ Test at least these paths before release:
 | Browser reuse | Existing tab; no tab; browser closed; denied Automation; unsupported browser |
 | App window | Open; close; reopen; load failure; reconnect; external link |
 | Service | Stopped; healthy; starting; installing runtime; external Harness; unrelated port conflict |
-| Runtime | Compatible external DSH; old/broken external DSH; Node 20+ without DSH; Node below minimum; no environment; existing managed runtime; adaptive npm heap propagation; npm out-of-memory recovery; failed rollback; update while service runs |
+| Runtime | Compatible external DSH; old/broken external DSH; Node 22.19.0+ without DSH; Node 22.14 rejection; no environment; existing managed runtime; adaptive npm heap propagation; npm out-of-memory recovery; failed startup validation preserving the current runtime; update while service runs |
 | Startup | Login item enabled/disabled; silent login launch |
 | Upgrade | DMG replacement in `/Applications`; existing `~/Applications` copy; legacy script upgrade; fresh install; existing user runtime and `~/.dsh` preservation |
 

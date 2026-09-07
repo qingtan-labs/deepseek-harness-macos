@@ -139,6 +139,10 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     return NSBundle.mainBundle.infoDictionary[@"DSHRecommendedVersion"] ?: @"0.1.1-rc.2";
 }
 
+- (NSString *)minimumNodeVersion {
+    return NSBundle.mainBundle.infoDictionary[@"NodeMinimumVersion"] ?: @"22.19.0";
+}
+
 - (void)addExecutablePath:(NSString *)path toCandidates:(NSMutableArray<NSString *> *)candidates {
     if (path.length == 0 || [candidates containsObject:path]) return;
     if ([NSFileManager.defaultManager isExecutableFileAtPath:path]) [candidates addObject:path];
@@ -204,6 +208,7 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
         [home stringByAppendingPathComponent:@".volta/bin/node"],
         [home stringByAppendingPathComponent:@".asdf/shims/node"],
         [home stringByAppendingPathComponent:@".mise/shims/node"],
+        [home stringByAppendingPathComponent:@".local/opt/dsh-node-runtime/node_modules/node/bin/node"],
         @"/opt/homebrew/bin/node", @"/usr/local/bin/node", @"/opt/local/bin/node"
     ]) [self addExecutablePath:path toCandidates:candidates];
     [self addVersionedExecutablesUnder:[home stringByAppendingPathComponent:@".nvm/versions/node"]
@@ -219,13 +224,28 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     return candidates;
 }
 
+- (NSString *)compatibleNodePathForDSHPath:(NSString *)dshPath {
+    for (NSString *nodePath in [self nodeCandidatesForDSHPath:dshPath]) {
+        NSString *output = [self runExecutable:nodePath arguments:@[ @"--version" ]
+                                   environment:NSProcessInfo.processInfo.environment timeout:5.0];
+        NSString *version = [output stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+        if ([version hasPrefix:@"v"]) version = [version substringFromIndex:1];
+        NSRegularExpression *pattern = [NSRegularExpression regularExpressionWithPattern:@"^[0-9]+\\.[0-9]+\\.[0-9]+$"
+                                                                                  options:0 error:nil];
+        if ([pattern firstMatchInString:version options:0 range:NSMakeRange(0, version.length)] == nil) continue;
+        if ([self compareSemanticVersion:version toVersion:[self minimumNodeVersion]] != NSOrderedAscending) {
+            return nodePath;
+        }
+    }
+    return nil;
+}
+
 - (NSDictionary<NSString *, NSString *> *)environmentForDSHPath:(NSString *)dshPath {
     NSMutableDictionary<NSString *, NSString *> *environment = NSProcessInfo.processInfo.environment.mutableCopy;
     NSMutableArray<NSString *> *pathEntries = [NSMutableArray array];
-    for (NSString *nodePath in [self nodeCandidatesForDSHPath:dshPath]) {
-        NSString *directory = nodePath.stringByDeletingLastPathComponent;
-        if (![pathEntries containsObject:directory]) [pathEntries addObject:directory];
-    }
+    NSString *compatibleNodePath = [self compatibleNodePathForDSHPath:dshPath];
+    NSString *nodeDirectory = compatibleNodePath.stringByDeletingLastPathComponent;
+    if (nodeDirectory.length > 0) [pathEntries addObject:nodeDirectory];
     NSString *dshDirectory = dshPath.stringByDeletingLastPathComponent;
     if (dshDirectory.length > 0 && ![pathEntries containsObject:dshDirectory]) [pathEntries addObject:dshDirectory];
     NSString *existingPath = environment[@"PATH"] ?: @"/usr/bin:/bin:/usr/sbin:/sbin";
@@ -865,7 +885,7 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
 - (void)offerManagedRuntimeInstallationPresentAfterReady:(BOOL)presentAfterReady {
     NSAlert *alert = [[NSAlert alloc] init];
     alert.messageText = L(@"安装 DeepSeek Harness 运行环境？");
-    alert.informativeText = [NSString stringWithFormat:L(@"应用会先检测并复用这台 Mac 上现有且兼容的 DSH 与 Node.js；不会覆盖用户安装的环境。只有 DSH 缺失、损坏或版本低于 %@ 时才补装应用托管的 DSH；只有 Node.js 缺失、损坏或低于 20 时才下载私有 Node.js。不需要管理员权限。需要下载时会访问 nodejs.org 和 npm 官方注册表。"), [self recommendedDSHVersion]];
+    alert.informativeText = [NSString stringWithFormat:L(@"应用会先检测并复用这台 Mac 上现有且兼容的 DSH 与 Node.js；不会覆盖用户安装的环境。只有 DSH 缺失、损坏或版本低于 %@ 时才补装应用托管的 DSH；只有 Node.js 缺失、损坏或低于 %@ 时才下载私有 Node.js。不需要管理员权限。需要下载时会访问 nodejs.org 和 npm 官方注册表。"), [self recommendedDSHVersion], [self minimumNodeVersion]];
     [alert addButtonWithTitle:L(@"一键安装")];
     [alert addButtonWithTitle:L(@"取消")];
     if ([alert runModal] == NSAlertFirstButtonReturn) {
@@ -1083,8 +1103,9 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
 - (void)beginStartPresentAfterReady:(BOOL)presentAfterReady {
     if ([self isBusy]) return;
     NSString *dshPath = [self dshPath];
-    NSString *dshVersion = dshPath == nil ? @"" : [self installedDSHVersionAtPath:dshPath];
-    BOOL compatible = dshVersion.length > 0 &&
+    NSString *nodePath = dshPath == nil ? nil : [self compatibleNodePathForDSHPath:dshPath];
+    NSString *dshVersion = nodePath == nil ? @"" : [self installedDSHVersionAtPath:dshPath];
+    BOOL compatible = nodePath.length > 0 && dshVersion.length > 0 &&
         [self compareSemanticVersion:dshVersion toVersion:[self recommendedDSHVersion]] != NSOrderedAscending;
     if (!compatible) {
         self.serviceState = DSHServiceStateStopped;

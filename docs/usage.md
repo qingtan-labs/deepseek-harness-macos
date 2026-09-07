@@ -40,7 +40,7 @@ The status reflects both a process listening on port 3080 and a successful HTTP 
 - An unrelated process using port 3080 is never treated as Harness and is not terminated.
 - **Copy diagnostics** provides version, state, mode, browser, address, and log location for troubleshooting.
 
-If no compatible DSH can run, the next Open action offers one-click environment selection and repair. It first reuses an existing compatible DSH, then reuses Node.js 20+ with npm when only DSH is missing, and downloads a private Node.js runtime only as the final fallback. Updating or installing a runtime stops and restarts a controller-owned Harness service as needed. External runtimes are never overwritten; a failed managed-runtime transaction preserves the previous working managed copy.
+If no compatible DSH can run, the next Open action offers one-click environment selection and repair. It first reuses an existing compatible DSH, then reuses Node.js 22.19.0+ with npm when only DSH is missing, and downloads a private Node.js runtime only as the final fallback. Updating or installing a runtime stops and restarts a controller-owned Harness service as needed. External runtimes are never overwritten; a staged update must pass live Profile and plugin-asset validation before it can replace the previous managed copy.
 
 ## Login startup
 
