@@ -153,12 +153,17 @@ scenario_failed_startup_validation_preserves_runtime() {
   [[ "$(plist_value "$support/environment.plist" dshVersion)" == 0.1.0 ]]
 }
 
-scenario_reuses_compatible_dsh
-scenario_reuses_node_and_installs_only_dsh
-scenario_preserves_old_external_dsh
-scenario_skips_a_failed_recorded_dsh
-scenario_explicit_update_switches_to_managed_dsh
-scenario_rejects_incompatible_recorded_node
-scenario_failed_startup_validation_preserves_runtime
+run_scenario() {
+  print -r -- "Testing: ${1#scenario_}"
+  "$1"
+}
+
+run_scenario scenario_reuses_compatible_dsh
+run_scenario scenario_reuses_node_and_installs_only_dsh
+run_scenario scenario_preserves_old_external_dsh
+run_scenario scenario_skips_a_failed_recorded_dsh
+run_scenario scenario_explicit_update_switches_to_managed_dsh
+run_scenario scenario_rejects_incompatible_recorded_node
+run_scenario scenario_failed_startup_validation_preserves_runtime
 
 print -r -- 'Runtime selection tests passed.'

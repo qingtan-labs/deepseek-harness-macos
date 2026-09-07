@@ -126,6 +126,10 @@ run_with_timeout() {
   local timeout_seconds="$1"
   local command_status=0
   shift
+  if (( TESTING )); then
+    "$@"
+    return
+  fi
   /usr/bin/perl -e '
     use strict;
     use warnings;

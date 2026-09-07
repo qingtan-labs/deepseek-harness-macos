@@ -23,6 +23,7 @@ jobs:
         run: ./scripts/check-repository.command
 
       - name: Test existing-environment runtime selection
+        timeout-minutes: 2
         run: ./scripts/test-runtime-selection.command
 
       - name: Build and validate universal release
