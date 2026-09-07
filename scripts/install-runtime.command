@@ -258,15 +258,23 @@ done
 
 for candidate in \
   "$HOME/.local/bin/dsh" "$HOME/.volta/bin/dsh" "$HOME/.asdf/shims/dsh" "$HOME/.mise/shims/dsh" \
-  "$HOME/.bun/bin/dsh" "$HOME/Library/pnpm/dsh" "/opt/homebrew/bin/dsh" "/usr/local/bin/dsh" "/opt/local/bin/dsh"; do
+  "$HOME/.bun/bin/dsh" "$HOME/Library/pnpm/dsh"; do
   append_unique_executable dsh "$candidate"
 done
 for candidate in \
   "$HOME/.local/bin/node" "$HOME/.volta/bin/node" "$HOME/.asdf/shims/node" "$HOME/.mise/shims/node" \
-  "$HOME/.local/opt/dsh-node-runtime/node_modules/node/bin/node" \
-  "/opt/homebrew/bin/node" "/usr/local/bin/node" "/opt/local/bin/node"; do
+  "$HOME/.local/opt/dsh-node-runtime/node_modules/node/bin/node"; do
   append_unique_executable node "$candidate"
 done
+
+if (( ! TESTING )); then
+  for candidate in "/opt/homebrew/bin/dsh" "/usr/local/bin/dsh" "/opt/local/bin/dsh"; do
+    append_unique_executable dsh "$candidate"
+  done
+  for candidate in "/opt/homebrew/bin/node" "/usr/local/bin/node" "/opt/local/bin/node"; do
+    append_unique_executable node "$candidate"
+  done
+fi
 
 for candidate in \
   "$HOME/.nvm/versions/node/"*/bin/dsh \
