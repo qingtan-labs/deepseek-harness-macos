@@ -30,6 +30,7 @@ DeepSeek Harness macOS 版是社区开发的辅助应用，把 Dock 启动入口
 
 | 用途 | 地址 |
 | --- | --- |
+| 产品系列 | [DeepSeek Harness Desktop](https://github.com/qingtan-labs/deepseek-harness-desktop) |
 | 源代码 | [github.com/qingtan-labs/deepseek-harness-macos](https://github.com/qingtan-labs/deepseek-harness-macos) |
 | 下载 | [GitHub Releases](https://github.com/qingtan-labs/deepseek-harness-macos/releases) |
 | 帮助与问题反馈 | [GitHub Issues](https://github.com/qingtan-labs/deepseek-harness-macos/issues) |

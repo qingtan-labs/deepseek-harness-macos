@@ -34,6 +34,7 @@ The controller manages only `http://127.0.0.1:3080`. It does not store, proxy, o
 
 | Purpose | Link |
 | --- | --- |
+| Product family | [DeepSeek Harness Desktop](https://github.com/qingtan-labs/deepseek-harness-desktop) |
 | Source code | [github.com/qingtan-labs/deepseek-harness-macos](https://github.com/qingtan-labs/deepseek-harness-macos) |
 | Downloads | [GitHub Releases](https://github.com/qingtan-labs/deepseek-harness-macos/releases) |
 | Help and bug reports | [GitHub Issues](https://github.com/qingtan-labs/deepseek-harness-macos/issues) |
