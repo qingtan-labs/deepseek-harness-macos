@@ -31,7 +31,7 @@ make_node_and_npm() {
     '[[ "${NODE_OPTIONS:-}" == --max-old-space-size=<-> ]] || exit 3' \
     '/usr/bin/printf "%s\n" "$NODE_OPTIONS" > "$prefix/npm-heap.txt"' \
     '/bin/mkdir -p "$prefix/node_modules/.bin"' \
-    '/usr/bin/printf '\''#!/bin/zsh\nprint -r -- "0.1.1-rc.2"\n'\'' > "$prefix/node_modules/.bin/dsh"' \
+    '/usr/bin/printf '\''#!/bin/zsh\nprint -r -- "0.2.0-rc.2"\n'\'' > "$prefix/node_modules/.bin/dsh"' \
     '/bin/chmod 755 "$prefix/node_modules/.bin/dsh"' > "$bin_dir/npm"
   /bin/chmod 755 "$bin_dir/node" "$bin_dir/npm"
 }
@@ -50,7 +50,7 @@ scenario_reuses_compatible_dsh() {
   local home="$scenario/home" bin_dir="$scenario/bin" support="$scenario/support"
   /bin/mkdir -p "$home"
   make_node_and_npm "$bin_dir" v22.19.0
-  make_dsh "$bin_dir/dsh" 0.1.1-rc.3
+  make_dsh "$bin_dir/dsh" 0.2.0-rc.3
   HOME="$home" PATH="$bin_dir:/usr/bin:/bin:/usr/sbin:/sbin" DEEPSEEK_HARNESS_SUPPORT_DIR="$support" \
     DEEPSEEK_HARNESS_LANGUAGE=en "$INSTALLER" >/dev/null
   [[ "$(plist_value "$support/environment.plist" dshPath)" == "$bin_dir/dsh" ]]
@@ -95,7 +95,7 @@ scenario_skips_a_failed_recorded_dsh() {
   make_node_and_npm "$bin_dir" v22.19.0
   /usr/bin/printf '%s\n' '#!/bin/zsh' 'exit 124' > "$failed"
   /bin/chmod 755 "$failed"
-  make_dsh "$home/.local/bin/dsh" 0.1.1
+  make_dsh "$home/.local/bin/dsh" 0.2.0-rc.2
   /usr/bin/plutil -create xml1 "$support/environment.plist"
   /usr/bin/plutil -insert dshPath -string "$failed" "$support/environment.plist"
   HOME="$home" PATH="$bin_dir:/usr/bin:/bin:/usr/sbin:/sbin" DEEPSEEK_HARNESS_SUPPORT_DIR="$support" \

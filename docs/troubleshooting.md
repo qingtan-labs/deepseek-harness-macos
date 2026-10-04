@@ -2,7 +2,7 @@
 
 ## macOS says the app or installer cannot be opened
 
-Version 1.0.2 is not Apple-notarized. After dragging the app from the DMG to Applications, Control-click the installed app, choose **Open**, and confirm. If already blocked, use **System Settings → Privacy & Security → Open Anyway**. Download only from this repository's Releases page and verify the checksum.
+Version 1.0.3 is not Apple-notarized. After dragging the app from the DMG to Applications, Control-click the installed app, choose **Open**, and confirm. If already blocked, use **System Settings → Privacy & Security → Open Anyway**. Download only from this repository's Releases page and verify the checksum.
 
 ## A new browser tab is still created
 
@@ -54,4 +54,4 @@ If a command works in Terminal but not from the Dock, rerun the one-click runtim
 
 ## A DSH update is available
 
-Choose **Service → Check for DSH Updates…**. The controller compares the installed version with npm's official `latest` metadata and displays both versions. An update runs only after confirmation and can restart a running Harness service. Version 1.0.2 starts the staged candidate with the current Profile and checks all advertised plugin assets before activation; if the candidate is incompatible, the previous managed runtime remains selected. Developer-preview DSH releases can change plugin or profile behavior, so keep the tested default unless you need a newer upstream fix.
+Choose **Service → Check for DSH Updates…**. The controller compares the installed version with npm's official `latest` metadata and displays both versions. An update runs only after confirmation and can restart a running Harness service. Version 1.0.3 follows the candidate's localhost authentication handshake, starts it with the current Profile, and checks all advertised plugin assets before activation; if the candidate is incompatible, the previous managed runtime remains selected. Developer-preview DSH releases can change plugin or profile behavior, so keep the tested default unless you need a newer upstream fix.

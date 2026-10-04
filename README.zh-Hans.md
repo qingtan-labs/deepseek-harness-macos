@@ -16,7 +16,7 @@
 <p align="center"><a href="README.md">English（默认）</a> · <strong>简体中文</strong></p>
 
 <p align="center">
-  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.2-macOS.dmg"><strong>下载 DeepSeek Harness 1.0.2 DMG</strong></a>
+  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.3-macOS.dmg"><strong>下载 DeepSeek Harness 1.0.3 DMG</strong></a>
 </p>
 
 DeepSeek Harness macOS 版是社区开发的辅助应用，把 Dock 启动入口、菜单栏控制、本地服务管理和可选的应用内窗口合并为一个程序。点击 Dock 时会优先聚焦已有 Harness 网页或窗口，而不是每次都故意新开一个标签页。
@@ -63,7 +63,8 @@ Dock 图标和菜单栏小鲸鱼控制同一个应用；菜单同时提供 DSH �
 - **一个程序、两个入口：** Dock 图标和菜单栏小鲸鱼属于同一个进程，不需要再启动第二个工具。
 - **先复用、再新建：** 浏览器模式会在 Safari 和主流 Chromium 浏览器中查找已有本地标签；应用内模式会恢复同一个窗口和网页会话。
 - **记住我的选择：** 浏览器或应用内窗口都可以保存为默认方式，并随时在菜单中修改。
-- **理解服务状态：** 页面与插件资源预检、旧加载清单自动恢复、端口冲突保护和服务所有权记录，可提升启动可靠性并避免误停其他进程。
+- **理解服务状态：** 带鉴权的页面与插件资源预检、旧加载清单自动恢复、端口冲突保护和服务所有权记录，可提升 DSH 0.2 启动可靠性并避免误停其他进程。
+- **官方客户端、轻量控制器：** 完整界面由已安装的 `dsh web` 提供，原生 App 不内置或维护第二套 Web 客户端。
 - **现有环境优先：** 用户已安装且可运行、不低于验证基线的 DSH 会原样复用；只有 DSH 缺失时会优先复用 Node.js 22.19.0+ 与 npm，确有必要时才下载私有 Node.js。
 - **全新 Mac 也能使用：** 没有兼容环境时，应用会为当前用户配置隔离的 Node.js 与 DSH，全程无需管理员权限。
 - **更新由你决定：** “服务”菜单可检查 npm 官方 `latest` 版本，并在你确认后才更新；不会后台静默更新 DSH。
@@ -81,8 +82,8 @@ Dock 图标和菜单栏小鲸鱼控制同一个应用；菜单同时提供 DSH �
 | 本地地址 | `http://127.0.0.1:3080` |
 | 可复用 Node.js | 22.19.0 或更高版本 |
 | 私有备用 Node.js | `22.21.1` |
-| 可复用 DSH | 可正常运行的 `0.1.1-rc.2` 或更高版本 |
-| 全新安装验证版本 | `@deepseek-ai/dsh@0.1.1-rc.2` |
+| 可复用 DSH | 可正常运行的 `0.2.0-rc.2` 或更高版本 |
+| 全新安装验证版本 | `@deepseek-ai/dsh@0.2.0-rc.2` |
 
 ## 安装
 
@@ -97,9 +98,9 @@ Dock 图标和菜单栏小鲸鱼控制同一个应用；菜单同时提供 DSH �
 
 默认版本保持精确，是为了让每次全新安装都从本控制器及插件加载行为已经验证过的同一个顶层 DSH 版本开始，并不代表永远锁死。选择**服务 → 检查 DSH 更新…**即可与 npm `latest` 比较，确认版本变化后再升级。候选版本必须先用当前 Profile 成功启动，并通过所有已声明插件资源检查，才会真正替换现有托管运行时。
 
-### 1.0.2 的 Gatekeeper 提示
+### 1.0.3 的 Gatekeeper 提示
 
-1.0.2 使用 ad-hoc 临时签名，尚未经过 Apple 公证，因此 macOS 可能提示“无法验证开发者”。请在 Applications 中按住 Control 点击 App 并选择**打开**；如果第一次已被拦截，也可以前往**系统设置 → 隐私与安全性 → 仍要打开**。
+1.0.3 使用 ad-hoc 临时签名，尚未经过 Apple 公证，因此 macOS 可能提示“无法验证开发者”。请在 Applications 中按住 Control 点击 App 并选择**打开**；如果第一次已被拦截，也可以前往**系统设置 → 隐私与安全性 → 仍要打开**。
 
 不要全局关闭 Gatekeeper。未来需要 Apple Developer ID 和公证，才能消除首次运行提示。
 
@@ -108,7 +109,7 @@ Dock 图标和菜单栏小鲸鱼控制同一个应用；菜单同时提供 DSH �
 下载 DMG 旁边可选的 `.sha256` 文件，保持两者位于同一目录，然后执行：
 
 ```sh
-shasum -a 256 -c DeepSeek-Harness-1.0.2-macOS.dmg.sha256
+shasum -a 256 -c DeepSeek-Harness-1.0.3-macOS.dmg.sha256
 ```
 
 ## 日常使用

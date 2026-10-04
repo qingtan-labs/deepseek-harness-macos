@@ -86,11 +86,13 @@ typedef NS_ENUM(NSInteger, DSHPreferredPresentation) {
 @property(nonatomic, assign) BOOL pendingRuntimeStartAfterInstall;
 @property(nonatomic, assign) BOOL pendingRuntimePresentAfterReady;
 @property(nonatomic, assign) BOOL pendingRuntimeReuseCompatibleEnvironment;
+@property(nonatomic, copy) NSString *lastBrowserAuthenticationAddress;
+@property(nonatomic, copy) NSString *lastInAppAuthenticationAddress;
 @end
 
 static DeepSeekHarnessApp *appDelegate;
 static BOOL DSHBackgroundLaunch = NO;
-static NSString * const DSHWebAddress = @"http://127.0.0.1:3080";
+static NSString * const DSHWebAddress = @"http://127.0.0.1:3080/";
 static NSString * const DSHLatestMetadataAddress = @"https://registry.npmjs.org/%40deepseek-ai%2Fdsh/latest";
 static NSString * const DSHPreferredPresentationKey = @"PreferredPresentation";
 static NSString * const DSHOnboardingKey = @"DidCompleteOnboardingV4";
@@ -99,7 +101,49 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
 @implementation DeepSeekHarnessApp
 
 - (NSString *)homePath { return NSHomeDirectory(); }
-- (NSURL *)webURL { return [NSURL URLWithString:DSHWebAddress]; }
+- (NSURL *)baseWebURL { return [NSURL URLWithString:DSHWebAddress]; }
+
+- (NSURL *)authenticatedWebURLFromLog {
+    NSFileHandle *handle = [NSFileHandle fileHandleForReadingAtPath:[self logPath]];
+    if (!handle) return nil;
+    unsigned long long size = [handle seekToEndOfFile];
+    NSUInteger sampleLength = 64 * 1024;
+    [handle seekToFileOffset:0];
+    NSMutableData *data = [[handle readDataOfLength:sampleLength] mutableCopy];
+    if (size > sampleLength) {
+        [data appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        [handle seekToFileOffset:MAX((unsigned long long)sampleLength, size - sampleLength)];
+        [data appendData:[handle readDataToEndOfFile]];
+    }
+    [handle closeFile];
+    NSString *log = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    if (log.length == 0) return nil;
+
+    NSRegularExpression *expression = [NSRegularExpression
+        regularExpressionWithPattern:@"http://(?:127\\.0\\.0\\.1|localhost):3080/\\?token=[A-Za-z0-9_-]+"
+        options:0 error:nil];
+    NSArray<NSTextCheckingResult *> *matches = [expression matchesInString:log options:0
+        range:NSMakeRange(0, log.length)];
+    for (NSTextCheckingResult *match in matches.reverseObjectEnumerator) {
+        NSString *candidate = [log substringWithRange:match.range];
+        NSURLComponents *components = [NSURLComponents componentsWithString:candidate];
+        BOOL localHost = [components.host isEqualToString:@"127.0.0.1"] ||
+            [components.host isEqualToString:@"localhost"];
+        NSString *token = nil;
+        for (NSURLQueryItem *item in components.queryItems) {
+            if ([item.name isEqualToString:@"token"]) { token = item.value; break; }
+        }
+        if ([components.scheme isEqualToString:@"http"] && localHost &&
+            components.port.integerValue == 3080 &&
+            (components.path.length == 0 || [components.path isEqualToString:@"/"]) &&
+            token.length > 0 && components.user.length == 0 && components.password.length == 0) {
+            return components.URL;
+        }
+    }
+    return nil;
+}
+
+- (NSURL *)webURL { return [self authenticatedWebURLFromLog] ?: [self baseWebURL]; }
 - (NSString *)appVersion { return NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"] ?: @""; }
 
 - (NSString *)logPath {
@@ -136,7 +180,7 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
 }
 
 - (NSString *)recommendedDSHVersion {
-    return NSBundle.mainBundle.infoDictionary[@"DSHRecommendedVersion"] ?: @"0.1.1-rc.2";
+    return NSBundle.mainBundle.infoDictionary[@"DSHRecommendedVersion"] ?: @"0.2.0-rc.2";
 }
 
 - (NSString *)minimumNodeVersion {
@@ -1346,15 +1390,21 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     return NO;
 }
 
-- (NSString *)focusScriptForBrowser:(NSString *)bundleIdentifier {
+- (NSString *)focusScriptForBrowser:(NSString *)bundleIdentifier authenticationURL:(NSURL *)authenticationURL {
+    NSString *authenticateSafari = authenticationURL
+        ? [NSString stringWithFormat:@"set URL of theTab to \"%@\"\n", authenticationURL.absoluteString]
+        : @"";
+    NSString *authenticateChromium = authenticationURL
+        ? [NSString stringWithFormat:@"set URL of tab tabIndex of theWindow to \"%@\"\n", authenticationURL.absoluteString]
+        : @"";
     if ([bundleIdentifier isEqualToString:@"com.apple.Safari"]) {
-        return @"tell application id \"com.apple.Safari\"\n"
+        return [NSString stringWithFormat:@"tell application id \"com.apple.Safari\"\n"
             "repeat with theWindow in windows\n"
             "repeat with theTab in tabs of theWindow\n"
             "set tabURL to URL of theTab\n"
             "if tabURL starts with \"http://127.0.0.1:3080\" or tabURL starts with \"http://localhost:3080\" then\n"
-            "set current tab of theWindow to theTab\nset index of theWindow to 1\nactivate\nreturn \"found\"\nend if\n"
-            "end repeat\nend repeat\nend tell\nreturn \"missing\"\n";
+            "%@set current tab of theWindow to theTab\nset index of theWindow to 1\nactivate\nreturn \"found\"\nend if\n"
+            "end repeat\nend repeat\nend tell\nreturn \"missing\"\n", authenticateSafari];
     }
     NSSet *chromium = [NSSet setWithArray:@[
         @"com.google.Chrome", @"com.google.Chrome.canary", @"com.microsoft.edgemac", @"com.microsoft.edgemac.Canary",
@@ -1367,20 +1417,27 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
         "set theWindow to window windowIndex\nrepeat with tabIndex from 1 to count of tabs of theWindow\n"
         "set tabURL to URL of tab tabIndex of theWindow\n"
         "if tabURL starts with \"http://127.0.0.1:3080\" or tabURL starts with \"http://localhost:3080\" then\n"
-        "set active tab index of theWindow to tabIndex\nset index of theWindow to 1\nactivate\nreturn \"found\"\n"
-        "end if\nend repeat\nend repeat\nend tell\nreturn \"missing\"\n", bundleIdentifier];
+        "%@set active tab index of theWindow to tabIndex\nset index of theWindow to 1\nactivate\nreturn \"found\"\n"
+        "end if\nend repeat\nend repeat\nend tell\nreturn \"missing\"\n", bundleIdentifier, authenticateChromium];
 }
 
 - (DSHBrowserProbeResult)focusExistingHarnessPage {
     @autoreleasepool {
         NSString *bundleIdentifier = [self defaultBrowserBundleIdentifier];
         if (bundleIdentifier.length == 0) return DSHBrowserProbeError;
-        NSString *source = [self focusScriptForBrowser:bundleIdentifier];
+        NSURL *targetURL = self.webURL;
+        BOOL needsAuthentication = targetURL.query.length > 0 &&
+            ![self.lastBrowserAuthenticationAddress isEqualToString:targetURL.absoluteString];
+        NSString *source = [self focusScriptForBrowser:bundleIdentifier
+                                      authenticationURL:needsAuthentication ? targetURL : nil];
         if (!source) return DSHBrowserProbeUnsupported;
         if (![self isApplicationRunningWithBundleIdentifier:bundleIdentifier]) return DSHBrowserProbeNotRunning;
         NSDictionary *error = nil;
         NSAppleEventDescriptor *result = [[[NSAppleScript alloc] initWithSource:source] executeAndReturnError:&error];
-        if (!error && [result.stringValue isEqualToString:@"found"]) return DSHBrowserProbeFocused;
+        if (!error && [result.stringValue isEqualToString:@"found"]) {
+            if (needsAuthentication) self.lastBrowserAuthenticationAddress = targetURL.absoluteString;
+            return DSHBrowserProbeFocused;
+        }
         if ([error[NSAppleScriptErrorNumber] integerValue] == -1743) return DSHBrowserProbePermissionDenied;
         return error ? DSHBrowserProbeError : DSHBrowserProbeMissing;
     }
@@ -1405,7 +1462,10 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
                 [self handleUnsupportedBrowser];
                 return;
             }
-            [NSWorkspace.sharedWorkspace openURL:self.webURL];
+            NSURL *targetURL = self.webURL;
+            if ([NSWorkspace.sharedWorkspace openURL:targetURL] && targetURL.query.length > 0) {
+                self.lastBrowserAuthenticationAddress = targetURL.absoluteString;
+            }
         });
     });
 }
@@ -1456,6 +1516,12 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
 - (void)openInAppWindow {
     self.windowLifetimeToken++;
     if (self.webWindow) {
+        NSURL *targetURL = self.webURL;
+        if (targetURL.query.length > 0 &&
+            ![self.lastInAppAuthenticationAddress isEqualToString:targetURL.absoluteString]) {
+            self.lastInAppAuthenticationAddress = targetURL.absoluteString;
+            [self.webView loadRequest:[NSURLRequest requestWithURL:targetURL]];
+        }
         [self.webWindow makeKeyAndOrderFront:nil];
         [NSApp activateIgnoringOtherApps:YES];
         [self updateWindowConnectionUI];
@@ -1521,13 +1587,19 @@ static NSString * const DSHLoginHelperIdentifier = @"com.yestar.deepseek-harness
     self.webView = webView;
     self.webViewLoadFailed = NO;
     [self updateWindowConnectionUI];
-    [webView loadRequest:[NSURLRequest requestWithURL:self.webURL]];
+    NSURL *targetURL = self.webURL;
+    if (targetURL.query.length > 0) self.lastInAppAuthenticationAddress = targetURL.absoluteString;
+    [webView loadRequest:[NSURLRequest requestWithURL:targetURL]];
     [window makeKeyAndOrderFront:nil];
     [NSApp activateIgnoringOtherApps:YES];
 }
 
 - (void)reloadWebView:(id)sender {
-    if ([self isRunningState]) [self.webView loadRequest:[NSURLRequest requestWithURL:self.webURL]];
+    if ([self isRunningState]) {
+        NSURL *targetURL = self.webURL;
+        if (targetURL.query.length > 0) self.lastInAppAuthenticationAddress = targetURL.absoluteString;
+        [self.webView loadRequest:[NSURLRequest requestWithURL:targetURL]];
+    }
     else [self requestOpenWithPresentation:DSHPreferredPresentationInApp];
 }
 

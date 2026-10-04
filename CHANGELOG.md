@@ -2,6 +2,21 @@
 
 All notable changes are documented here. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.3] - 2026-10-04
+
+### Changed
+
+- Move the tested clean-install and recovery baseline to official DSH `0.2.0-rc.2`; compatible existing DSH and Node.js installations remain preferred.
+- Keep the native app as a lightweight controller while the complete client continues to come from `dsh web`.
+
+### Fixed
+
+- Discover and strictly validate DSH 0.2's per-process localhost authentication URL before health checks or presentation.
+- Reauthenticate an existing supported browser tab when the service token changes, without creating duplicate tabs on later Dock clicks.
+- Reauthenticate the in-app WebKit window after a DSH service restart.
+- Preserve the authentication cookie while validating staged DSH pages and accept both absolute and relative plugin asset paths.
+- Verify Apple silicon and Intel slices independently in the legacy/source-checkout installer.
+
 ## [1.0.2] - 2026-09-07
 
 ### Fixed
@@ -47,6 +62,7 @@ All notable changes are documented here. This project follows [Semantic Versioni
 
 - The 1.0.0 binary is ad-hoc signed and not Apple-notarized. See the README for the safe first-open flow.
 
+[1.0.3]: https://github.com/qingtan-labs/deepseek-harness-macos/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/qingtan-labs/deepseek-harness-macos/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/qingtan-labs/deepseek-harness-macos/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/qingtan-labs/deepseek-harness-macos/releases/tag/v1.0.0

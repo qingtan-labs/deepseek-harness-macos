@@ -1,33 +1,40 @@
-# DeepSeek Harness for macOS 1.0.2
+# DeepSeek Harness for macOS 1.0.3
 
-This reliability release prevents an incompatible DSH or Node.js update from replacing a working managed runtime.
+This compatibility release brings the lightweight macOS controller in line with the authenticated web client shipped by official DSH 0.2.
 
 ## Fixed
 
-- Enforces the full reusable Node.js minimum of `22.19.0` instead of accepting every Node.js 20+ or 22.x build. This prevents DSH dependencies that require Node.js 22.19+ from being launched with Node.js 22.14.
-- Validates a staged DSH update against the current Profile before activation. The candidate must start, return the local Harness page, and serve every advertised plugin asset.
-- Keeps the current managed DSH selected when startup validation detects incompatible plugins or Profile APIs.
-- Recognizes the common private DSH Node runtime path in addition to Homebrew, npm, nvm, fnm, Volta, asdf, mise, nodenv, and MacPorts locations.
+- Reads and strictly validates the per-process localhost authentication URL printed by DSH 0.2 before checking or presenting the web client.
+- Authenticates a reused Safari or Chromium tab once when the DSH service token changes, without opening a duplicate tab on later Dock clicks.
+- Applies the same authenticated handoff to the native in-app WebKit window, including service restarts.
+- Updates staged-runtime validation to follow the DSH 0.2 token handshake, retain its local cookie, and validate both absolute and relative plugin asset paths.
+- Verifies the Apple silicon and Intel slices independently in the legacy/source-checkout installer.
+
+## Updated baseline
+
+- Fresh or recovery installations now use official `@deepseek-ai/dsh@0.2.0-rc.2`.
+- A compatible existing DSH `0.2.0-rc.2` or later and Node.js `22.19.0` or later are still reused without replacement.
+- The controller remains a lightweight native launcher: the complete client is provided by `dsh web`; no separate or modified web client is bundled.
+
+Profiles, sessions, plugins, and credentials under `~/.dsh` remain outside the app bundle and are preserved during controller upgrades.
 
 ## Compatibility baseline
 
 - macOS 13 or later; Apple silicon and Intel.
 - Reusable Node.js: `22.19.0` or later.
 - Private fallback Node.js: `22.21.1`.
-- Tested DSH clean-install and recovery baseline: `0.1.1-rc.2`.
-
-The menu's DSH update check remains user initiated. Newer npm `latest` versions are never silently installed, and a candidate that cannot start with the current Profile is not activated.
+- Tested DSH clean-install and recovery baseline: `0.2.0-rc.2`.
 
 ## Installation
 
-Download `DeepSeek-Harness-1.0.2-macOS.dmg`, open it, and drag **DeepSeek Harness** onto **Applications**. Replace an earlier copy when prompted. Preferences, the selected environment record, and `~/.dsh` data remain outside the app bundle.
+Download `DeepSeek-Harness-1.0.3-macOS.dmg`, open it, and drag **DeepSeek Harness** onto **Applications**. Replace an earlier copy when prompted.
 
 This build is ad-hoc signed and not Apple-notarized. Control-click the installed app and choose **Open**, or use **System Settings → Privacy & Security → Open Anyway**. Do not disable Gatekeeper globally.
 
 ## Integrity
 
 ```sh
-shasum -a 256 -c DeepSeek-Harness-1.0.2-macOS.dmg.sha256
+shasum -a 256 -c DeepSeek-Harness-1.0.3-macOS.dmg.sha256
 ```
 
 This is an independent community project and is not affiliated with DeepSeek.

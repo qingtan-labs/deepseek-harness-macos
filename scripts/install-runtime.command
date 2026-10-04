@@ -9,7 +9,7 @@ umask 077
 
 readonly DEFAULT_NODE_VERSION='22.21.1'
 readonly DEFAULT_MIN_NODE_VERSION='22.19.0'
-readonly DEFAULT_DSH_VERSION='0.1.1-rc.2'
+readonly DEFAULT_DSH_VERSION='0.2.0-rc.2'
 readonly NODE_VERSION="${DEEPSEEK_HARNESS_NODE_VERSION:-$DEFAULT_NODE_VERSION}"
 readonly MIN_NODE_VERSION="${DEEPSEEK_HARNESS_MIN_NODE_VERSION:-$DEFAULT_MIN_NODE_VERSION}"
 readonly DSH_VERSION="${DEEPSEEK_HARNESS_DSH_VERSION:-$DEFAULT_DSH_VERSION}"
@@ -456,13 +456,20 @@ else
     startup_log="$temporary_dir/dsh-startup-check.log"
     startup_html="$temporary_dir/dsh-startup-check.html"
     startup_assets="$temporary_dir/dsh-startup-assets.txt"
+    startup_cookies="$temporary_dir/dsh-startup-cookies.txt"
+    : > "$startup_cookies"
     /usr/bin/env PATH="${node_for_install:h}:$DISCOVERY_PATH" "$staged_dsh" web --no-open \
       > "$startup_log" 2>&1 &
     active_child_pid=$!
     typeset -i startup_attempts=0
     typeset -i startup_ready=0
+    startup_url="$DSH_WEB_ADDRESS"
     while (( startup_attempts < STARTUP_ATTEMPTS )); do
-      if /usr/bin/curl --fail --silent --show-error --max-time 2 "$DSH_WEB_ADDRESS" -o "$startup_html" 2>/dev/null; then
+      authenticated_url="$(/usr/bin/grep -Eo 'http://(127\.0\.0\.1|localhost):3080/\?token=[A-Za-z0-9_-]+' "$startup_log" 2>/dev/null | /usr/bin/tail -n 1 || true)"
+      [[ -n "$authenticated_url" ]] && startup_url="$authenticated_url"
+      if /usr/bin/curl --fail --location --silent --show-error --max-time 2 \
+          --cookie-jar "$startup_cookies" --cookie "$startup_cookies" \
+          "$startup_url" -o "$startup_html" 2>/dev/null; then
         startup_ready=1
         break
       fi
@@ -481,17 +488,21 @@ else
         const payload = html.slice(start + marker.length, end).trim().replace(/;$/, "");
         const boot = JSON.parse(payload);
         for (const entry of Array.isArray(boot.entries) ? boot.entries : []) {
-          if (typeof entry?.url === "string" && entry.url.startsWith("/plugins/")) console.log(entry.url);
+          if (typeof entry?.url !== "string") continue;
+          if (entry.url.startsWith("/plugins/") || entry.url.startsWith("plugins/")) {
+            console.log("/" + entry.url.replace(/^\/+/, ""));
+          }
         }
       ' "$startup_html" > "$startup_assets" 2>> "$startup_log"; then
         startup_ready=0
       fi
     fi
     if (( startup_ready )); then
+      startup_origin="${startup_url%%\?*}"
       while IFS= read -r asset_path; do
         [[ -n "$asset_path" ]] || continue
         if ! /usr/bin/curl --head --fail --silent --show-error --max-time 3 \
-            "${DSH_WEB_ADDRESS%/}${asset_path}" >/dev/null 2>> "$startup_log"; then
+            --cookie "$startup_cookies" "${startup_origin%/}${asset_path}" >/dev/null 2>> "$startup_log"; then
           print -r -- "Plugin asset failed validation: $asset_path" >> "$startup_log"
           startup_ready=0
           break

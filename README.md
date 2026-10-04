@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.2-macOS.dmg"><strong>Download the DeepSeek Harness 1.0.2 DMG</strong></a>
+  <a href="https://github.com/qingtan-labs/deepseek-harness-macos/releases/latest/download/DeepSeek-Harness-1.0.3-macOS.dmg"><strong>Download the DeepSeek Harness 1.0.3 DMG</strong></a>
 </p>
 
 DeepSeek Harness for macOS is a community-built companion that combines the Dock launcher, menu bar controls, local service management, and an optional in-app window. Clicking the Dock icon focuses an existing Harness page or window whenever possible; it does not deliberately create another tab every time.
@@ -69,7 +69,8 @@ The native WebKit window keeps one local session. Closing the window does not qu
 - **One app, two entry points.** The Dock icon and menu bar whale belong to the same process; there is no second utility to launch.
 - **Reuse before opening.** Browser mode checks supported Safari and Chromium-family browsers for an existing local Harness tab. In-app mode restores the same window and web session.
 - **Remember my choice.** Browser or in-app mode can be saved as the default and changed from the menu at any time.
-- **Service-aware actions.** Page and plugin-asset health checks, stale-loader recovery, port-conflict protection, and ownership records keep startup reliable without stopping unrelated processes.
+- **Service-aware actions.** Authenticated page and plugin-asset health checks, stale-loader recovery, port-conflict protection, and ownership records keep DSH 0.2 startup reliable without stopping unrelated processes.
+- **Official client, lightweight controller.** The complete interface is served by the installed `dsh web`; the native app does not bundle or maintain a second web client.
 - **Existing environment first.** A working user-installed DSH at or above the tested baseline is reused as-is. If only DSH is missing, an existing Node.js 22.19.0+ and npm are reused; private Node.js is downloaded only when required.
 - **Works on a clean Mac.** When no compatible environment exists, the app can set up a private, per-user Node.js and DSH runtime without administrator access.
 - **Updates stay under your control.** The Service menu can check the official npm `latest` version and install it only after confirmation. There are no silent background DSH updates.
@@ -87,8 +88,8 @@ The native WebKit window keeps one local session. Closing the window does not qu
 | Local endpoint | `http://127.0.0.1:3080` |
 | Reusable Node.js | Version 22.19.0 or later |
 | Private fallback Node.js | `22.21.1` |
-| Reusable DSH | Working version `0.1.1-rc.2` or later |
-| Tested clean-install DSH | `@deepseek-ai/dsh@0.1.1-rc.2` |
+| Reusable DSH | Working version `0.2.0-rc.2` or later |
+| Tested clean-install DSH | `@deepseek-ai/dsh@0.2.0-rc.2` |
 
 ## Install
 
@@ -103,9 +104,9 @@ If DSH is missing, broken, or older than the tested baseline, the app installs o
 
 The tested default is intentionally exact so every fresh install starts from the same top-level DSH version validated against this controller and its plugin-loading behavior. It is a compatibility baseline, not a permanent lock: choose **Service → Check for DSH Updates…** to compare against npm `latest`, review the version change, and update explicitly. Before activation, an update candidate must start with the current Profile and serve every advertised plugin asset; a failed validation keeps the previously working managed runtime.
 
-### Gatekeeper notice for 1.0.2
+### Gatekeeper notice for 1.0.3
 
-Version 1.0.2 is ad-hoc signed and is not Apple-notarized. macOS may therefore show an unidentified-developer warning. Control-click the app in Applications and choose **Open**, or go to **System Settings → Privacy & Security → Open Anyway** after macOS blocks the first attempt.
+Version 1.0.3 is ad-hoc signed and is not Apple-notarized. macOS may therefore show an unidentified-developer warning. Control-click the app in Applications and choose **Open**, or go to **System Settings → Privacy & Security → Open Anyway** after macOS blocks the first attempt.
 
 Do not disable Gatekeeper globally. A future release requires an Apple Developer ID and notarization to remove this first-run warning.
 
@@ -114,7 +115,7 @@ Do not disable Gatekeeper globally. A future release requires an Apple Developer
 Download the optional `.sha256` file beside the DMG, keep both files in the same directory, then run:
 
 ```sh
-shasum -a 256 -c DeepSeek-Harness-1.0.2-macOS.dmg.sha256
+shasum -a 256 -c DeepSeek-Harness-1.0.3-macOS.dmg.sha256
 ```
 
 ## Everyday use

@@ -4,7 +4,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 readonly ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd -P)"
-readonly EXPECTED_VERSION='1.0.2'
+readonly EXPECTED_VERSION='1.0.3'
 readonly REQUIRED_FILES=(
   README.md README.zh-Hans.md CHANGELOG.md CONTRIBUTING.md SECURITY.md SUPPORT.md
   CODE_OF_CONDUCT.md LICENSE manifest.json
@@ -34,7 +34,7 @@ manifest_version="$(/usr/bin/plutil -extract version raw manifest.json)"
 [[ "$plist_version" == "$EXPECTED_VERSION" ]] || { print -u2 -r -- "Unexpected plist version: $plist_version"; exit 1; }
 [[ "$manifest_version" == "$EXPECTED_VERSION" ]] || { print -u2 -r -- "Unexpected manifest version: $manifest_version"; exit 1; }
 /usr/bin/grep -Fq "readonly APP_VERSION='$EXPECTED_VERSION'" scripts/install.command
-/usr/bin/grep -Fq "readonly DEFAULT_DSH_VERSION='0.1.1-rc.2'" scripts/install-runtime.command
+/usr/bin/grep -Fq "readonly DEFAULT_DSH_VERSION='0.2.0-rc.2'" scripts/install-runtime.command
 /usr/bin/grep -Fq "readonly DEFAULT_NODE_VERSION='22.21.1'" scripts/install-runtime.command
 /usr/bin/grep -Fq "readonly DEFAULT_MIN_NODE_VERSION='22.19.0'" scripts/install-runtime.command
 /usr/bin/grep -Fq 'DEEPSEEK_HARNESS_VALIDATE_STARTUP' scripts/install-runtime.command

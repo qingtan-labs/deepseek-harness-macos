@@ -1,5 +1,5 @@
 #!/bin/zsh
-# DeepSeek Harness 1.0.2 bilingual per-user installer.
+# DeepSeek Harness 1.0.3 bilingual per-user installer.
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -8,7 +8,7 @@ umask 077
 readonly APP_NAME='DeepSeek Harness.app'
 readonly APP_EXECUTABLE='DeepSeekHarness'
 readonly BUNDLE_IDENTIFIER='com.yestar.deepseek-harness'
-readonly APP_VERSION='1.0.2'
+readonly APP_VERSION='1.0.3'
 readonly SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
 readonly APP_SOURCE="$SCRIPT_DIR/$APP_NAME"
 readonly RUNTIME_INSTALLER="$APP_SOURCE/Contents/Resources/InstallRuntime.command"
@@ -79,7 +79,8 @@ fi
 say_note "Verifying the release" "检查发布包完整性"
 /usr/bin/codesign --verify --deep --strict --verbose=2 "$APP_SOURCE" \
   || stop_with_error "$(localized "Signature verification failed. Download the complete release again." "应用签名校验失败。请重新下载完整安装包。")"
-/usr/bin/lipo "$APP_SOURCE/Contents/MacOS/$APP_EXECUTABLE" -verify_arch arm64 x86_64 \
+/usr/bin/lipo "$APP_SOURCE/Contents/MacOS/$APP_EXECUTABLE" -verify_arch arm64 \
+  && /usr/bin/lipo "$APP_SOURCE/Contents/MacOS/$APP_EXECUTABLE" -verify_arch x86_64 \
   || stop_with_error "$(localized "The universal app binary is incomplete." "通用应用二进制不完整。")"
 
 say_note "Checking the existing DSH and Node.js environment" "检查现有 DSH 与 Node.js 环境"

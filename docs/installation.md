@@ -3,7 +3,7 @@
 ## Standard DMG installation
 
 1. Download the DMG and optional `.sha256` file from the same GitHub Release.
-2. Optionally verify it with `shasum -a 256 -c DeepSeek-Harness-1.0.2-macOS.dmg.sha256`.
+2. Optionally verify it with `shasum -a 256 -c DeepSeek-Harness-1.0.3-macOS.dmg.sha256`.
 3. Open the DMG and drag **DeepSeek Harness** onto **Applications**.
 4. Control-click the installed app, choose **Open**, and confirm the prompt.
 
@@ -17,7 +17,7 @@ The app evaluates the current device before downloading anything:
 
 | Existing state | Result |
 | --- | --- |
-| Working DSH `0.1.1-rc.2` or later | Reuse that DSH and its environment; download nothing |
+| Working DSH `0.2.0-rc.2` or later | Reuse that DSH and its environment; download nothing |
 | No compatible DSH; working Node.js 22.19.0+ and npm | Reuse Node/npm and install only an isolated app-managed DSH |
 | DSH missing/broken/too old and Node missing/broken/too old | Install verified private Node.js 22.21.1, then isolated DSH |
 | Existing app-managed environment already matches | Reuse it without reinstalling |
@@ -36,7 +36,7 @@ Maintainers can still run `scripts/install.command` from a source checkout or le
 
 ## Gatekeeper
 
-The 1.0.2 release is ad-hoc signed rather than Developer ID signed and notarized. Control-click the installed app and choose **Open** for the first launch. If macOS blocks it, use **System Settings → Privacy & Security → Open Anyway**. Do not disable Gatekeeper globally.
+The 1.0.3 release is ad-hoc signed rather than Developer ID signed and notarized. Control-click the installed app and choose **Open** for the first launch. If macOS blocks it, use **System Settings → Privacy & Security → Open Anyway**. Do not disable Gatekeeper globally.
 
 ## Uninstall
 
