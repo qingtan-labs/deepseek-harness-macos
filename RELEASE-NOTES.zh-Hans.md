@@ -1,5 +1,7 @@
 # DeepSeek Harness macOS 版 1.0.3
 
+[English](https://github.com/qingtan-labs/deepseek-harness-macos/blob/v1.0.3/RELEASE-NOTES.md) · **简体中文**
+
 此兼容性版本让轻量 macOS 控制器适配官方 DSH 0.2 自带的鉴权 Web 客户端。
 
 ## 已修复

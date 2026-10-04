@@ -1,5 +1,7 @@
 # DeepSeek Harness for macOS 1.0.3
 
+**English** · [简体中文](https://github.com/qingtan-labs/deepseek-harness-macos/blob/v1.0.3/RELEASE-NOTES.zh-Hans.md)
+
 This compatibility release brings the lightweight macOS controller in line with the authenticated web client shipped by official DSH 0.2.
 
 ## Fixed
